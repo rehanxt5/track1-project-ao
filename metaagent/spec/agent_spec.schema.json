@@ -1,0 +1,322 @@
+{
+  "$defs": {
+    "CriticConfig": {
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "default": false,
+          "title": "Enabled",
+          "type": "boolean"
+        },
+        "system_prompt": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "System Prompt"
+        },
+        "max_revisions": {
+          "default": 1,
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Max Revisions",
+          "type": "integer"
+        },
+        "acceptance_criteria": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Acceptance Criteria"
+        }
+      },
+      "title": "CriticConfig",
+      "type": "object"
+    },
+    "DesignPhilosophy": {
+      "description": "Fixed library the architect's SELECT step chooses from.",
+      "enum": [
+        "react",
+        "plan_execute",
+        "plan_critic_reflect"
+      ],
+      "title": "DesignPhilosophy",
+      "type": "string"
+    },
+    "MemoryKind": {
+      "enum": [
+        "none",
+        "scratchpad",
+        "summary_buffer",
+        "full_history",
+        "vector_recall"
+      ],
+      "title": "MemoryKind",
+      "type": "string"
+    },
+    "MemoryStrategy": {
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "$ref": "#/$defs/MemoryKind",
+          "default": "scratchpad"
+        },
+        "max_items": {
+          "default": 20,
+          "maximum": 1000,
+          "minimum": 1,
+          "title": "Max Items",
+          "type": "integer"
+        },
+        "summarize_after": {
+          "anyOf": [
+            {
+              "minimum": 1,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Summarize After"
+        }
+      },
+      "title": "MemoryStrategy",
+      "type": "object"
+    },
+    "Orchestration": {
+      "additionalProperties": false,
+      "properties": {
+        "topology": {
+          "$ref": "#/$defs/Topology"
+        },
+        "entry_role": {
+          "minLength": 1,
+          "title": "Entry Role",
+          "type": "string"
+        },
+        "steps": {
+          "items": {
+            "$ref": "#/$defs/OrchestrationStep"
+          },
+          "title": "Steps",
+          "type": "array"
+        },
+        "max_steps": {
+          "default": 10,
+          "maximum": 200,
+          "minimum": 1,
+          "title": "Max Steps",
+          "type": "integer"
+        },
+        "budget_tokens": {
+          "default": 20000,
+          "minimum": 1,
+          "title": "Budget Tokens",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "topology",
+        "entry_role"
+      ],
+      "title": "Orchestration",
+      "type": "object"
+    },
+    "OrchestrationStep": {
+      "additionalProperties": false,
+      "description": "One node in the orchestration graph.\n\n`role` is the role that acts at this step; `next` lists role names it\nmay hand off to (empty means terminal). The interpreter walks this\ngraph starting at `Orchestration.entry_role`.",
+      "properties": {
+        "role": {
+          "minLength": 1,
+          "title": "Role",
+          "type": "string"
+        },
+        "next": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Next",
+          "type": "array"
+        },
+        "condition": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Condition"
+        }
+      },
+      "required": [
+        "role"
+      ],
+      "title": "OrchestrationStep",
+      "type": "object"
+    },
+    "RetryPolicy": {
+      "additionalProperties": false,
+      "properties": {
+        "max_retries": {
+          "default": 1,
+          "maximum": 5,
+          "minimum": 0,
+          "title": "Max Retries",
+          "type": "integer"
+        },
+        "backoff": {
+          "default": "none",
+          "enum": [
+            "none",
+            "fixed",
+            "exponential"
+          ],
+          "title": "Backoff",
+          "type": "string"
+        },
+        "on_failure": {
+          "default": "abort",
+          "enum": [
+            "abort",
+            "fallback_role",
+            "escalate_to_critic"
+          ],
+          "title": "On Failure",
+          "type": "string"
+        }
+      },
+      "title": "RetryPolicy",
+      "type": "object"
+    },
+    "Role": {
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "minLength": 1,
+          "title": "Name",
+          "type": "string"
+        },
+        "system_prompt": {
+          "minLength": 1,
+          "title": "System Prompt",
+          "type": "string"
+        },
+        "tools": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Tools",
+          "type": "array"
+        },
+        "memory": {
+          "$ref": "#/$defs/MemoryStrategy"
+        },
+        "retry": {
+          "$ref": "#/$defs/RetryPolicy"
+        },
+        "critic": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/CriticConfig"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max_tokens": {
+          "default": 1024,
+          "minimum": 1,
+          "title": "Max Tokens",
+          "type": "integer"
+        },
+        "temperature": {
+          "default": 0.2,
+          "maximum": 2.0,
+          "minimum": 0.0,
+          "title": "Temperature",
+          "type": "number"
+        }
+      },
+      "required": [
+        "name",
+        "system_prompt"
+      ],
+      "title": "Role",
+      "type": "object"
+    },
+    "Topology": {
+      "enum": [
+        "single_agent",
+        "supervisor_workers",
+        "pipeline"
+      ],
+      "title": "Topology",
+      "type": "string"
+    }
+  },
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": "1.0",
+      "default": "1.0",
+      "title": "Version",
+      "type": "string"
+    },
+    "id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "title": "Id"
+    },
+    "goal": {
+      "minLength": 1,
+      "title": "Goal",
+      "type": "string"
+    },
+    "design_philosophy": {
+      "$ref": "#/$defs/DesignPhilosophy"
+    },
+    "orchestration": {
+      "$ref": "#/$defs/Orchestration"
+    },
+    "roles": {
+      "items": {
+        "$ref": "#/$defs/Role"
+      },
+      "minItems": 1,
+      "title": "Roles",
+      "type": "array"
+    }
+  },
+  "required": [
+    "goal",
+    "design_philosophy",
+    "orchestration",
+    "roles"
+  ],
+  "title": "AgentSpec",
+  "type": "object"
+}
