@@ -1,0 +1,13 @@
+{
+  "id": "dev_003",
+  "text": "Hi, this is Connor Byrne. I have a question about order ORD-79313 and whether the Wireless Mouse in it is covered under warranty. Can you let me know what's going on? email me back at your convenience.",
+  "gold": {
+    "customer_name": "Connor Byrne",
+    "order_id": "ORD-79313",
+    "product": "Wireless Mouse",
+    "issue_type": "other",
+    "priority": "medium",
+    "requested_action": "information",
+    "contact_method": "email"
+  }
+}

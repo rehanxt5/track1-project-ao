@@ -1,0 +1,13 @@
+{
+  "id": "dev_012",
+  "text": "My name's Ingrid Solberg, order ORD-54506. I ordered a Ergonomic Office Chair and got sent the wrong size/color entirely, not what I picked. I'd like a full refund for this. By the way, my earlier order ORD-69462 arrived last month and that one was totally fine, no issues there. you can just email me the update.",
+  "gold": {
+    "customer_name": "Ingrid Solberg",
+    "order_id": "ORD-54506",
+    "product": "Ergonomic Office Chair",
+    "issue_type": "wrong_item",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": "email"
+  }
+}

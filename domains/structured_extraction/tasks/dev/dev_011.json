@@ -1,0 +1,13 @@
+{
+  "id": "dev_011",
+  "text": "Aisha Bello here, just wondering if order ORD-69331's Noise-Cancelling Headphones can be gift-wrapped before it ships, general question. Just looking for an update on this. take your time on this one. Separately, order ORD-15018 was resolved already -- this message is about the new one. please call me back today.",
+  "gold": {
+    "customer_name": "Aisha Bello",
+    "order_id": "ORD-69331",
+    "product": "Noise-Cancelling Headphones",
+    "issue_type": "other",
+    "priority": "low",
+    "requested_action": "information",
+    "contact_method": "phone"
+  }
+}

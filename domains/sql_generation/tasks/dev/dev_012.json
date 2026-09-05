@@ -1,0 +1,25 @@
+{
+  "id": "dev_012",
+  "question": "List the names of customers who have placed more than 3 completed orders, ordered by name ascending.",
+  "gold": {
+    "sql": "SELECT c.name AS name FROM customers c JOIN orders o ON o.customer_id = c.id AND o.status = 'completed' GROUP BY c.id HAVING COUNT(*) > 3 ORDER BY c.name ASC",
+    "columns": [
+      "name"
+    ],
+    "expected_rows": [
+      [
+        "Elena Garcia"
+      ],
+      [
+        "Leo Patel"
+      ],
+      [
+        "Rosa Nguyen"
+      ],
+      [
+        "Umar Smith"
+      ]
+    ],
+    "order_matters": true
+  }
+}

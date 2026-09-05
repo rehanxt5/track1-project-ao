@@ -1,0 +1,37 @@
+{
+  "id": "dev_014",
+  "question": "What loyalty discount percentage (as a raw fraction, e.g. 0.12) applies to the customer who placed order ORD-2010?",
+  "gold": {
+    "answer": 0.0,
+    "required_calls": [
+      {
+        "tool": "get_order",
+        "args": {
+          "order_id": "ORD-2010"
+        }
+      },
+      {
+        "tool": "get_customer",
+        "args": {
+          "customer_id": "CUST-03"
+        }
+      },
+      {
+        "tool": "get_loyalty_discount",
+        "args": {
+          "tier": "bronze"
+        }
+      }
+    ],
+    "order_constraints": [
+      {
+        "before": "get_order",
+        "after": "get_customer"
+      },
+      {
+        "before": "get_customer",
+        "after": "get_loyalty_discount"
+      }
+    ]
+  }
+}

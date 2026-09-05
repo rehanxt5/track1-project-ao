@@ -1,0 +1,13 @@
+{
+  "id": "dev_001",
+  "text": "Hello, this is Amara Chukwu. Order ORD-86639 arrived but the Insulated Water Bottle was missing from the box, only the packaging was there. I'd like a new one sent out to replace it. take your time on this one. a phone call would be best.",
+  "gold": {
+    "customer_name": "Amara Chukwu",
+    "order_id": "ORD-86639",
+    "product": "Insulated Water Bottle",
+    "issue_type": "missing_item",
+    "priority": "low",
+    "requested_action": "replacement",
+    "contact_method": "phone"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "test_013",
+  "text": "My name's Samuel Osei, order ORD-71140. I ordered a Electric Kettle and got sent the wrong size/color entirely, not what I picked. Please ship a replacement unit. I NEED THIS FIXED TODAY, this is unacceptable. Unrelated, but order ORD-53165 from a while back already got sorted out, so don't worry about that one. reply to this email when you can.",
+  "gold": {
+    "customer_name": "Samuel Osei",
+    "order_id": "ORD-71140",
+    "product": "Electric Kettle",
+    "issue_type": "wrong_item",
+    "priority": "urgent",
+    "requested_action": "replacement",
+    "contact_method": "email"
+  }
+}

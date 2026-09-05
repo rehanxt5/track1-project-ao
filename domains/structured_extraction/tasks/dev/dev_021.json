@@ -1,0 +1,13 @@
+{
+  "id": "dev_021",
+  "text": "This is Devon Clarke. I'm writing about order ORD-98957 -- the Travel Backpack arrived with the screen cracked right out of the box. Is there a repair option instead of a full replacement? not urgent, just following up when convenient. please call me back today.",
+  "gold": {
+    "customer_name": "Devon Clarke",
+    "order_id": "ORD-98957",
+    "product": "Travel Backpack",
+    "issue_type": "defective",
+    "priority": "low",
+    "requested_action": "repair",
+    "contact_method": "phone"
+  }
+}

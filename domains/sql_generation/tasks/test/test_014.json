@@ -1,0 +1,55 @@
+{
+  "id": "test_014",
+  "question": "List the names of customers, alphabetically, who signed up before 2025-01-01.",
+  "gold": {
+    "sql": "SELECT name FROM customers WHERE signup_date < '2025-01-01' ORDER BY name ASC",
+    "columns": [
+      "name"
+    ],
+    "expected_rows": [
+      [
+        "Cora Garcia"
+      ],
+      [
+        "Cora Okoro"
+      ],
+      [
+        "Derek Nguyen"
+      ],
+      [
+        "Hassan Dubois"
+      ],
+      [
+        "Ines Okoro"
+      ],
+      [
+        "Kira Garcia"
+      ],
+      [
+        "Kira Rossi"
+      ],
+      [
+        "Kira Smith"
+      ],
+      [
+        "Leo Okoro"
+      ],
+      [
+        "Leo Patel"
+      ],
+      [
+        "Mira Patel"
+      ],
+      [
+        "Sam Garcia"
+      ],
+      [
+        "Sam Smith"
+      ],
+      [
+        "Umar Smith"
+      ]
+    ],
+    "order_matters": true
+  }
+}

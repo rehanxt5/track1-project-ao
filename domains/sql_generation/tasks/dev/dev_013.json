@@ -1,0 +1,49 @@
+{
+  "id": "dev_013",
+  "question": "List the names of customers with loyalty_tier 'bronze', ordered by signup_date ascending.",
+  "gold": {
+    "sql": "SELECT name FROM customers WHERE loyalty_tier = 'bronze' ORDER BY signup_date ASC",
+    "columns": [
+      "name"
+    ],
+    "expected_rows": [
+      [
+        "Sam Smith"
+      ],
+      [
+        "Hassan Dubois"
+      ],
+      [
+        "Sam Garcia"
+      ],
+      [
+        "Cora Okoro"
+      ],
+      [
+        "Mira Patel"
+      ],
+      [
+        "Ines Okoro"
+      ],
+      [
+        "Kira Smith"
+      ],
+      [
+        "Leo Okoro"
+      ],
+      [
+        "Kira Garcia"
+      ],
+      [
+        "Grace Smith"
+      ],
+      [
+        "Sam Nguyen"
+      ],
+      [
+        "Mira Smith"
+      ]
+    ],
+    "order_matters": true
+  }
+}

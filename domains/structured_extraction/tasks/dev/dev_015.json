@@ -1,0 +1,13 @@
+{
+  "id": "dev_015",
+  "text": "Hi, Nadia Petrov here. Order ORD-63383 was supposed to be a Noise-Cancelling Headphones but a completely different item showed up in the box. I'd like a full refund for this. please call me back today.",
+  "gold": {
+    "customer_name": "Nadia Petrov",
+    "order_id": "ORD-63383",
+    "product": "Noise-Cancelling Headphones",
+    "issue_type": "wrong_item",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": "phone"
+  }
+}

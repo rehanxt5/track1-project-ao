@@ -1,0 +1,18 @@
+{
+  "id": "dev_025",
+  "question": "Which product category generated the lowest total revenue (price times quantity) from completed orders? Return the category and its total revenue (rounded to 2 decimal places), as columns category and total_revenue.",
+  "gold": {
+    "sql": "SELECT p.category AS category, ROUND(SUM(p.price * oi.quantity), 2) AS total_revenue FROM order_items oi JOIN orders o ON o.id = oi.order_id JOIN products p ON p.id = oi.product_id WHERE o.status = 'completed' GROUP BY p.category ORDER BY total_revenue ASC LIMIT 1",
+    "columns": [
+      "category",
+      "total_revenue"
+    ],
+    "expected_rows": [
+      [
+        "home",
+        1580.72
+      ]
+    ],
+    "order_matters": false
+  }
+}

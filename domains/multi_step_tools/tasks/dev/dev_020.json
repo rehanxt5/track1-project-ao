@@ -1,0 +1,33 @@
+{
+  "id": "dev_020",
+  "question": "Who is the manager of the employee who handled order ORD-2014? Give the manager's full name.",
+  "gold": {
+    "answer": "Sana Iqbal",
+    "required_calls": [
+      {
+        "tool": "get_order",
+        "args": {
+          "order_id": "ORD-2014"
+        }
+      },
+      {
+        "tool": "get_employee",
+        "args": {
+          "employee_id": "EMP-02"
+        }
+      },
+      {
+        "tool": "get_employee",
+        "args": {
+          "employee_id": "EMP-10"
+        }
+      }
+    ],
+    "order_constraints": [
+      {
+        "before": "get_order",
+        "after": "get_employee"
+      }
+    ]
+  }
+}

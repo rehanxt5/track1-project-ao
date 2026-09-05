@@ -1,0 +1,13 @@
+{
+  "id": "dev_014",
+  "text": "This is Liam O'Connor. I'm writing about order ORD-18507 -- the Electric Kettle arrived with the screen cracked right out of the box. I'd like a full refund for this. this is the second time I'm writing about it, please prioritize. By the way, my earlier order ORD-13503 arrived last month and that one was totally fine, no issues there. reply to this email when you can.",
+  "gold": {
+    "customer_name": "Liam O'Connor",
+    "order_id": "ORD-18507",
+    "product": "Electric Kettle",
+    "issue_type": "defective",
+    "priority": "high",
+    "requested_action": "refund",
+    "contact_method": "email"
+  }
+}

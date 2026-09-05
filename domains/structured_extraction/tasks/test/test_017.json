@@ -1,0 +1,13 @@
+{
+  "id": "test_017",
+  "text": "Hello, my name is Hana Kobayashi. I was charged twice for order ORD-93461, once for the Desk Lamp and once again a day later for no reason. I'd like a full refund for this. ASAP please -- I'm considering cancelling my account over this.",
+  "gold": {
+    "customer_name": "Hana Kobayashi",
+    "order_id": "ORD-93461",
+    "product": "Desk Lamp",
+    "issue_type": "billing",
+    "priority": "urgent",
+    "requested_action": "refund",
+    "contact_method": null
+  }
+}

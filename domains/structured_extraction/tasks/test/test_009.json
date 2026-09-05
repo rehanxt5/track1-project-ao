@@ -1,0 +1,13 @@
+{
+  "id": "test_009",
+  "text": "Elena Torres here -- my card was billed the wrong amount for order ORD-82716, more than the Running Shoes actually costs. Just looking for an update on this. I need this sorted out soon, it's been almost two weeks. I'll be on live chat later, ping me there.",
+  "gold": {
+    "customer_name": "Elena Torres",
+    "order_id": "ORD-82716",
+    "product": "Running Shoes",
+    "issue_type": "billing",
+    "priority": "high",
+    "requested_action": "information",
+    "contact_method": "chat"
+  }
+}

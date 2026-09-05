@@ -1,0 +1,13 @@
+{
+  "id": "test_002",
+  "text": "This is Hana Kobayashi, checking on order ORD-99452 -- the Running Shoes tracking hasn't updated in days and it's way past the delivery date. Could you clarify the situation for me? no rush at all, whenever you get a chance. give me a call at the number on file.",
+  "gold": {
+    "customer_name": "Hana Kobayashi",
+    "order_id": "ORD-99452",
+    "product": "Running Shoes",
+    "issue_type": "late_delivery",
+    "priority": "low",
+    "requested_action": "information",
+    "contact_method": "phone"
+  }
+}

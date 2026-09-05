@@ -1,0 +1,13 @@
+{
+  "id": "dev_013",
+  "text": "Hana Kobayashi here -- order ORD-34496 says delivered but I never actually received the Desk Lamp, the box was empty. Please just refund me, I don't want a replacement. not urgent, just following up when convenient.",
+  "gold": {
+    "customer_name": "Hana Kobayashi",
+    "order_id": "ORD-34496",
+    "product": "Desk Lamp",
+    "issue_type": "missing_item",
+    "priority": "low",
+    "requested_action": "refund",
+    "contact_method": null
+  }
+}

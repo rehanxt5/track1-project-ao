@@ -1,0 +1,13 @@
+{
+  "id": "test_014",
+  "text": "Hana Kobayashi here, just wondering if order ORD-28979's Phone Case can be gift-wrapped before it ships, general question. Could you clarify the situation for me? reply to this email when you can.",
+  "gold": {
+    "customer_name": "Hana Kobayashi",
+    "order_id": "ORD-28979",
+    "product": "Phone Case",
+    "issue_type": "other",
+    "priority": "medium",
+    "requested_action": "information",
+    "contact_method": "email"
+  }
+}

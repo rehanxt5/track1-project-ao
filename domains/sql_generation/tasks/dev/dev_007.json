@@ -1,0 +1,16 @@
+{
+  "id": "dev_007",
+  "question": "How many orders from customers in 'Raleigh' have status 'pending' or 'cancelled'? Return a single column named order_count.",
+  "gold": {
+    "sql": "SELECT COUNT(*) AS order_count FROM orders o JOIN customers c ON c.id = o.customer_id WHERE c.city = 'Raleigh' AND o.status IN ('pending', 'cancelled')",
+    "columns": [
+      "order_count"
+    ],
+    "expected_rows": [
+      [
+        0
+      ]
+    ],
+    "order_matters": false
+  }
+}

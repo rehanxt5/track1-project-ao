@@ -1,0 +1,16 @@
+{
+  "id": "dev_009",
+  "question": "How many orders have status 'pending'? Return a single column named order_count.",
+  "gold": {
+    "sql": "SELECT COUNT(*) AS order_count FROM orders WHERE status = 'pending'",
+    "columns": [
+      "order_count"
+    ],
+    "expected_rows": [
+      [
+        8
+      ]
+    ],
+    "order_matters": false
+  }
+}

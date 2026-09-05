@@ -1,0 +1,13 @@
+{
+  "id": "test_021",
+  "text": "Hana Kobayashi here -- my card was billed the wrong amount for order ORD-20501, more than the Travel Backpack actually costs. Can you let me know what's going on? I need this sorted out soon, it's been almost two weeks. give me a call at the number on file.",
+  "gold": {
+    "customer_name": "Hana Kobayashi",
+    "order_id": "ORD-20501",
+    "product": "Travel Backpack",
+    "issue_type": "billing",
+    "priority": "high",
+    "requested_action": "information",
+    "contact_method": "phone"
+  }
+}

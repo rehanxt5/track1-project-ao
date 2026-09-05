@@ -1,0 +1,13 @@
+{
+  "id": "test_005",
+  "text": "Ingrid Solberg here -- order ORD-29810 says delivered but I never actually received the Noise-Cancelling Headphones, the box was empty. Can you refund the charge? I'd really appreciate a quick resolution, it's becoming a problem. reach me on chat, I have it open all day.",
+  "gold": {
+    "customer_name": "Ingrid Solberg",
+    "order_id": "ORD-29810",
+    "product": "Noise-Cancelling Headphones",
+    "issue_type": "missing_item",
+    "priority": "high",
+    "requested_action": "refund",
+    "contact_method": "chat"
+  }
+}

@@ -1,0 +1,37 @@
+{
+  "id": "test_022",
+  "question": "What flat shipping rate applies to the customer who placed order ORD-2012?",
+  "gold": {
+    "answer": 9.0,
+    "required_calls": [
+      {
+        "tool": "get_order",
+        "args": {
+          "order_id": "ORD-2012"
+        }
+      },
+      {
+        "tool": "get_customer",
+        "args": {
+          "customer_id": "CUST-06"
+        }
+      },
+      {
+        "tool": "get_shipping_rate",
+        "args": {
+          "region": "east"
+        }
+      }
+    ],
+    "order_constraints": [
+      {
+        "before": "get_order",
+        "after": "get_customer"
+      },
+      {
+        "before": "get_customer",
+        "after": "get_shipping_rate"
+      }
+    ]
+  }
+}

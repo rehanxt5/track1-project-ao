@@ -1,0 +1,13 @@
+{
+  "id": "dev_025",
+  "text": "Isabella Ruiz here -- order ORD-84382 says delivered but I never actually received the Noise-Cancelling Headphones, the box was empty. I'd like a new one sent out to replace it. Separately, order ORD-89299 was resolved already -- this message is about the new one. give me a call at the number on file.",
+  "gold": {
+    "customer_name": "Isabella Ruiz",
+    "order_id": "ORD-84382",
+    "product": "Noise-Cancelling Headphones",
+    "issue_type": "missing_item",
+    "priority": "medium",
+    "requested_action": "replacement",
+    "contact_method": "phone"
+  }
+}

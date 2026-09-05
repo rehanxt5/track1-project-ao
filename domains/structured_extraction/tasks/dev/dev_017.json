@@ -1,0 +1,13 @@
+{
+  "id": "dev_017",
+  "text": "Chloe Bennett here, just wondering if order ORD-21283's Phone Case can be gift-wrapped before it ships, general question. Can you let me know what's going on? I'll be on live chat later, ping me there.",
+  "gold": {
+    "customer_name": "Chloe Bennett",
+    "order_id": "ORD-21283",
+    "product": "Phone Case",
+    "issue_type": "other",
+    "priority": "medium",
+    "requested_action": "information",
+    "contact_method": "chat"
+  }
+}

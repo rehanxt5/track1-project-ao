@@ -1,0 +1,13 @@
+{
+  "id": "test_019",
+  "text": "Jonas Weber here -- order ORD-82783 says delivered but I never actually received the Electric Kettle, the box was empty. Please ship a replacement unit. Separately, order ORD-55148 was resolved already -- this message is about the new one. reply to this email when you can.",
+  "gold": {
+    "customer_name": "Jonas Weber",
+    "order_id": "ORD-82783",
+    "product": "Electric Kettle",
+    "issue_type": "missing_item",
+    "priority": "medium",
+    "requested_action": "replacement",
+    "contact_method": "email"
+  }
+}

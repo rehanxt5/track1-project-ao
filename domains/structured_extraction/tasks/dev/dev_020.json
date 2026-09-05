@@ -1,0 +1,13 @@
+{
+  "id": "dev_020",
+  "text": "This is Lucia Fernandez. I'm writing about order ORD-40962 -- the Yoga Mat arrived with the screen cracked right out of the box. Can you send a replacement as soon as possible? Separately, order ORD-82923 was resolved already -- this message is about the new one. I'll be on live chat later, ping me there.",
+  "gold": {
+    "customer_name": "Lucia Fernandez",
+    "order_id": "ORD-40962",
+    "product": "Yoga Mat",
+    "issue_type": "defective",
+    "priority": "medium",
+    "requested_action": "replacement",
+    "contact_method": "chat"
+  }
+}

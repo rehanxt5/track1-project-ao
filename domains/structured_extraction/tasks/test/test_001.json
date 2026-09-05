@@ -1,0 +1,13 @@
+{
+  "id": "test_001",
+  "text": "Tariq Hassan here, just wondering if order ORD-40122's Phone Case can be gift-wrapped before it ships, general question. Could you clarify the situation for me? take your time on this one. Separately, order ORD-22594 was resolved already -- this message is about the new one. reach me on chat, I have it open all day.",
+  "gold": {
+    "customer_name": "Tariq Hassan",
+    "order_id": "ORD-40122",
+    "product": "Phone Case",
+    "issue_type": "other",
+    "priority": "low",
+    "requested_action": "information",
+    "contact_method": "chat"
+  }
+}

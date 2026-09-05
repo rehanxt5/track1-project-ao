@@ -1,0 +1,13 @@
+{
+  "id": "test_024",
+  "text": "Miguel Santos here -- my card was billed the wrong amount for order ORD-55084, more than the Running Shoes actually costs. Just looking for an update on this. Separately, order ORD-45195 was resolved already -- this message is about the new one. email me back at your convenience.",
+  "gold": {
+    "customer_name": "Miguel Santos",
+    "order_id": "ORD-55084",
+    "product": "Running Shoes",
+    "issue_type": "billing",
+    "priority": "medium",
+    "requested_action": "information",
+    "contact_method": "email"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "dev_010",
+  "text": "Rajesh Kumar here, just wondering if order ORD-16416's Yoga Mat can be gift-wrapped before it ships, general question. Just looking for an update on this. no rush at all, whenever you get a chance. By the way, my earlier order ORD-52766 arrived last month and that one was totally fine, no issues there. give me a call at the number on file.",
+  "gold": {
+    "customer_name": "Rajesh Kumar",
+    "order_id": "ORD-16416",
+    "product": "Yoga Mat",
+    "issue_type": "other",
+    "priority": "low",
+    "requested_action": "information",
+    "contact_method": "phone"
+  }
+}

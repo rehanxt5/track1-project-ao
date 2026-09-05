@@ -1,0 +1,13 @@
+{
+  "id": "dev_004",
+  "text": "Hello, my name is Hana Kobayashi. I was charged twice for order ORD-60095, once for the Ergonomic Office Chair and once again a day later for no reason. Can you let me know what's going on? reach me on chat, I have it open all day.",
+  "gold": {
+    "customer_name": "Hana Kobayashi",
+    "order_id": "ORD-60095",
+    "product": "Ergonomic Office Chair",
+    "issue_type": "billing",
+    "priority": "medium",
+    "requested_action": "information",
+    "contact_method": "chat"
+  }
+}

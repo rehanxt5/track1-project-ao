@@ -1,0 +1,13 @@
+{
+  "id": "test_011",
+  "text": "Hi, Jonas Weber here. Order ORD-86198 was supposed to be a Yoga Mat but a completely different item showed up in the box. Can you refund the charge?",
+  "gold": {
+    "customer_name": "Jonas Weber",
+    "order_id": "ORD-86198",
+    "product": "Yoga Mat",
+    "issue_type": "wrong_item",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": null
+  }
+}

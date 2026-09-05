@@ -1,0 +1,63 @@
+{
+  "id": "test_012",
+  "question": "What is the final total cost for order ORD-2008? Sum each line item's unit_price times qty, apply the customer's loyalty discount to that subtotal, then add flat-rate shipping for the customer's region. Round to 2 decimal places.",
+  "gold": {
+    "answer": 140.88,
+    "required_calls": [
+      {
+        "tool": "get_order",
+        "args": {
+          "order_id": "ORD-2008"
+        }
+      },
+      {
+        "tool": "get_product",
+        "args": {
+          "sku": "SKU-101"
+        }
+      },
+      {
+        "tool": "get_product",
+        "args": {
+          "sku": "SKU-102"
+        }
+      },
+      {
+        "tool": "get_customer",
+        "args": {
+          "customer_id": "CUST-08"
+        }
+      },
+      {
+        "tool": "get_loyalty_discount",
+        "args": {
+          "tier": "silver"
+        }
+      },
+      {
+        "tool": "get_shipping_rate",
+        "args": {
+          "region": "south"
+        }
+      }
+    ],
+    "order_constraints": [
+      {
+        "before": "get_order",
+        "after": "get_customer"
+      },
+      {
+        "before": "get_order",
+        "after": "get_product"
+      },
+      {
+        "before": "get_customer",
+        "after": "get_shipping_rate"
+      },
+      {
+        "before": "get_customer",
+        "after": "get_loyalty_discount"
+      }
+    ]
+  }
+}

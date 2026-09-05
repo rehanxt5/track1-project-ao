@@ -1,0 +1,16 @@
+{
+  "id": "dev_017",
+  "question": "What is the average order value (sum of price times quantity per order) for completed orders placed in 2024? Round to 2 decimal places. Return a single column named avg_order_value.",
+  "gold": {
+    "sql": "SELECT ROUND(AVG(order_total), 2) AS avg_order_value FROM (  SELECT o.id AS order_id, SUM(p.price * oi.quantity) AS order_total   FROM orders o   JOIN order_items oi ON oi.order_id = o.id   JOIN products p ON p.id = oi.product_id   WHERE o.status = 'completed' AND o.order_date LIKE '2024-%'   GROUP BY o.id)",
+    "columns": [
+      "avg_order_value"
+    ],
+    "expected_rows": [
+      [
+        846.19
+      ]
+    ],
+    "order_matters": false
+  }
+}

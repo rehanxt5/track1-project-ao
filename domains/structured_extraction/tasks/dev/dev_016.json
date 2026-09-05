@@ -1,0 +1,13 @@
+{
+  "id": "dev_016",
+  "text": "Hi, Kwame Owusu here. Order ORD-35393 for a Desk Lamp was supposed to arrive last week and it's still not here. Please just refund me, I don't want a replacement. not urgent, just following up when convenient. reach me on chat, I have it open all day.",
+  "gold": {
+    "customer_name": "Kwame Owusu",
+    "order_id": "ORD-35393",
+    "product": "Desk Lamp",
+    "issue_type": "late_delivery",
+    "priority": "low",
+    "requested_action": "refund",
+    "contact_method": "chat"
+  }
+}
