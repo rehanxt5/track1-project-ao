@@ -1,0 +1,16 @@
+{
+  "id": "test_009",
+  "question": "How many orders have status 'completed'? Return a single column named order_count.",
+  "gold": {
+    "sql": "SELECT COUNT(*) AS order_count FROM orders WHERE status = 'completed'",
+    "columns": [
+      "order_count"
+    ],
+    "expected_rows": [
+      [
+        34
+      ]
+    ],
+    "order_matters": false
+  }
+}

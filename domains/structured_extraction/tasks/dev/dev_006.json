@@ -1,0 +1,13 @@
+{
+  "id": "dev_006",
+  "text": "This is Sofia Marchetti. I'm writing about order ORD-32145 -- the Yoga Mat arrived with the screen cracked right out of the box. Please ship a replacement unit. I'd really appreciate a quick resolution, it's becoming a problem. By the way, my earlier order ORD-35183 arrived last month and that one was totally fine, no issues there. I'll be on live chat later, ping me there.",
+  "gold": {
+    "customer_name": "Sofia Marchetti",
+    "order_id": "ORD-32145",
+    "product": "Yoga Mat",
+    "issue_type": "defective",
+    "priority": "high",
+    "requested_action": "replacement",
+    "contact_method": "chat"
+  }
+}

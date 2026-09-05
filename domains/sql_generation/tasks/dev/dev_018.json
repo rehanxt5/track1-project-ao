@@ -1,0 +1,16 @@
+{
+  "id": "dev_018",
+  "question": "What is the average product price in the 'electronics' category? Round to 2 decimal places. Return a single column named avg_price.",
+  "gold": {
+    "sql": "SELECT ROUND(AVG(price), 2) AS avg_price FROM products WHERE category = 'electronics'",
+    "columns": [
+      "avg_price"
+    ],
+    "expected_rows": [
+      [
+        108.37
+      ]
+    ],
+    "order_matters": false
+  }
+}

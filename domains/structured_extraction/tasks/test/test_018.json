@@ -1,0 +1,13 @@
+{
+  "id": "test_018",
+  "text": "Priya Nair here -- order ORD-88470 says delivered but I never actually received the Wireless Mouse, the box was empty. Can you refund the charge? By the way, my earlier order ORD-26143 arrived last month and that one was totally fine, no issues there. reply to this email when you can.",
+  "gold": {
+    "customer_name": "Priya Nair",
+    "order_id": "ORD-88470",
+    "product": "Wireless Mouse",
+    "issue_type": "missing_item",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": "email"
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "test_003",
+  "text": "Ravi Shankar here -- my card was billed the wrong amount for order ORD-21272, more than the Bluetooth Speaker actually costs. Can you let me know what's going on? take your time on this one. please call me back today.",
+  "gold": {
+    "customer_name": "Ravi Shankar",
+    "order_id": "ORD-21272",
+    "product": "Bluetooth Speaker",
+    "issue_type": "billing",
+    "priority": "low",
+    "requested_action": "information",
+    "contact_method": "phone"
+  }
+}

@@ -1,0 +1,33 @@
+[
+  {
+    "name": "list_tables",
+    "description": "List all table names in the database.",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  {
+    "name": "describe_table",
+    "description": "Describe a table's columns (name and declared SQL type).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "table_name": {"type": "string", "description": "Table to describe, e.g. 'orders'."}
+      },
+      "required": ["table_name"]
+    }
+  },
+  {
+    "name": "run_query",
+    "description": "Execute a single read-only SELECT statement against the database and return its columns and rows (capped at 20 rows). Use this to explore and sanity-check a query before giving your final answer. Non-SELECT statements and multiple statements are rejected.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "sql": {"type": "string", "description": "A single SELECT statement."}
+      },
+      "required": ["sql"]
+    }
+  }
+]

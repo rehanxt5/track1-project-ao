@@ -1,0 +1,13 @@
+{
+  "id": "dev_019",
+  "text": "Hi, my name is Marcus Webb. The Desk Lamp I got in order ORD-84377 stopped working after two days, it just won't turn on anymore. Can you send a replacement as soon as possible? this is the third time I'm contacting you, I will be disputing the charge with my bank if I don't hear back by tomorrow. a phone call would be best.",
+  "gold": {
+    "customer_name": "Marcus Webb",
+    "order_id": "ORD-84377",
+    "product": "Desk Lamp",
+    "issue_type": "defective",
+    "priority": "urgent",
+    "requested_action": "replacement",
+    "contact_method": "phone"
+  }
+}

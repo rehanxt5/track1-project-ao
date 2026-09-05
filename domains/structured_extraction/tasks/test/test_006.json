@@ -1,0 +1,13 @@
+{
+  "id": "test_006",
+  "text": "My name's Chloe Bennett, order ORD-12192. I ordered a Travel Backpack and got sent the wrong size/color entirely, not what I picked. Can you send a replacement as soon as possible? take your time on this one. email me back at your convenience.",
+  "gold": {
+    "customer_name": "Chloe Bennett",
+    "order_id": "ORD-12192",
+    "product": "Travel Backpack",
+    "issue_type": "wrong_item",
+    "priority": "low",
+    "requested_action": "replacement",
+    "contact_method": "email"
+  }
+}

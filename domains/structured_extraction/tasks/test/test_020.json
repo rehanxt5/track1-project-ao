@@ -1,0 +1,13 @@
+{
+  "id": "test_020",
+  "text": "This is Greta Lindqvist, checking on order ORD-23476 -- the Wireless Mouse tracking hasn't updated in days and it's way past the delivery date. Please just refund me, I don't want a replacement. Separately, order ORD-42053 was resolved already -- this message is about the new one. reach me on chat, I have it open all day.",
+  "gold": {
+    "customer_name": "Greta Lindqvist",
+    "order_id": "ORD-23476",
+    "product": "Wireless Mouse",
+    "issue_type": "late_delivery",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": "chat"
+  }
+}

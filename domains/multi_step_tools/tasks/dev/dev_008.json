@@ -1,0 +1,30 @@
+{
+  "id": "dev_008",
+  "question": "For order ORD-2006: what is the total quantity of items across all line items, and what category does the single most expensive line item (by unit_price) belong to?",
+  "gold": {
+    "answer": {
+      "total_qty": 3,
+      "most_expensive_category": "home"
+    },
+    "required_calls": [
+      {
+        "tool": "get_order",
+        "args": {
+          "order_id": "ORD-2006"
+        }
+      },
+      {
+        "tool": "get_product",
+        "args": {
+          "sku": "SKU-302"
+        }
+      }
+    ],
+    "order_constraints": [
+      {
+        "before": "get_order",
+        "after": "get_product"
+      }
+    ]
+  }
+}

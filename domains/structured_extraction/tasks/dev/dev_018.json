@@ -1,0 +1,13 @@
+{
+  "id": "dev_018",
+  "text": "Hello, this is Chloe Bennett. Order ORD-26032 arrived but the Coffee Maker was missing from the box, only the packaging was there. Can you refund the charge? Unrelated, but order ORD-42019 from a while back already got sorted out, so don't worry about that one. reach me on chat, I have it open all day.",
+  "gold": {
+    "customer_name": "Chloe Bennett",
+    "order_id": "ORD-26032",
+    "product": "Coffee Maker",
+    "issue_type": "missing_item",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": "chat"
+  }
+}

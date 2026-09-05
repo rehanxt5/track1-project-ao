@@ -1,0 +1,13 @@
+{
+  "id": "test_015",
+  "text": "This is Jonas Weber, checking on order ORD-49607 -- the Insulated Water Bottle tracking hasn't updated in days and it's way past the delivery date. Could you clarify the situation for me? this is the third time I'm contacting you, I will be disputing the charge with my bank if I don't hear back by tomorrow. Separately, order ORD-78452 was resolved already -- this message is about the new one. email me back at your convenience.",
+  "gold": {
+    "customer_name": "Jonas Weber",
+    "order_id": "ORD-49607",
+    "product": "Insulated Water Bottle",
+    "issue_type": "late_delivery",
+    "priority": "urgent",
+    "requested_action": "information",
+    "contact_method": "email"
+  }
+}

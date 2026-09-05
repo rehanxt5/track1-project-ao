@@ -1,0 +1,68 @@
+[
+  {
+    "name": "get_order",
+    "description": "Look up an order by id. Returns customer_id, handled_by (employee_id), status, and a list of line items ({sku, qty}).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "order_id": {"type": "string", "description": "Order id, e.g. 'ORD-2001'."}
+      },
+      "required": ["order_id"]
+    }
+  },
+  {
+    "name": "get_customer",
+    "description": "Look up a customer by id. Returns name, region, and loyalty_tier.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "customer_id": {"type": "string", "description": "Customer id, e.g. 'CUST-01'."}
+      },
+      "required": ["customer_id"]
+    }
+  },
+  {
+    "name": "get_product",
+    "description": "Look up a product by SKU. Returns name, unit_price, and category.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "sku": {"type": "string", "description": "Product SKU, e.g. 'SKU-100'."}
+      },
+      "required": ["sku"]
+    }
+  },
+  {
+    "name": "get_employee",
+    "description": "Look up an employee by id. Returns name, role, and manager_id (the employee_id of their manager, or null for the top of the chain).",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "employee_id": {"type": "string", "description": "Employee id, e.g. 'EMP-01'."}
+      },
+      "required": ["employee_id"]
+    }
+  },
+  {
+    "name": "get_shipping_rate",
+    "description": "Look up the flat shipping rate for a region.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "region": {"type": "string", "description": "One of 'west', 'east', 'midwest', 'south'."}
+      },
+      "required": ["region"]
+    }
+  },
+  {
+    "name": "get_loyalty_discount",
+    "description": "Look up the discount percentage (0.0-1.0) for a loyalty tier.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "tier": {"type": "string", "description": "One of 'bronze', 'silver', 'gold'."}
+      },
+      "required": ["tier"]
+    }
+  }
+]

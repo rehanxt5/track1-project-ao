@@ -1,0 +1,13 @@
+{
+  "id": "test_012",
+  "text": "My name's Aisha Bello, order ORD-55660. I ordered a Running Shoes and got sent the wrong size/color entirely, not what I picked. I'd like a full refund for this. Unrelated, but order ORD-69083 from a while back already got sorted out, so don't worry about that one.",
+  "gold": {
+    "customer_name": "Aisha Bello",
+    "order_id": "ORD-55660",
+    "product": "Running Shoes",
+    "issue_type": "wrong_item",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": null
+  }
+}

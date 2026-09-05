@@ -1,0 +1,36 @@
+{
+  "id": "dev_001",
+  "question": "For order ORD-2001: what is the total quantity of items across all line items, and what category does the single most expensive line item (by unit_price) belong to?",
+  "gold": {
+    "answer": {
+      "total_qty": 3,
+      "most_expensive_category": "outdoor"
+    },
+    "required_calls": [
+      {
+        "tool": "get_order",
+        "args": {
+          "order_id": "ORD-2001"
+        }
+      },
+      {
+        "tool": "get_product",
+        "args": {
+          "sku": "SKU-100"
+        }
+      },
+      {
+        "tool": "get_product",
+        "args": {
+          "sku": "SKU-101"
+        }
+      }
+    ],
+    "order_constraints": [
+      {
+        "before": "get_order",
+        "after": "get_product"
+      }
+    ]
+  }
+}

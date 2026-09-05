@@ -1,0 +1,16 @@
+{
+  "id": "test_008",
+  "question": "How many orders have status 'cancelled'? Return a single column named order_count.",
+  "gold": {
+    "sql": "SELECT COUNT(*) AS order_count FROM orders WHERE status = 'cancelled'",
+    "columns": [
+      "order_count"
+    ],
+    "expected_rows": [
+      [
+        13
+      ]
+    ],
+    "order_matters": false
+  }
+}

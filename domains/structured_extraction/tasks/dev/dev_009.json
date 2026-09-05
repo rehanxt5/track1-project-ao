@@ -1,0 +1,13 @@
+{
+  "id": "dev_009",
+  "text": "This is Marcus Webb. I'm writing about order ORD-18098 -- the Ergonomic Office Chair arrived with the screen cracked right out of the box. Can this be repaired under warranty? this is the second time I'm writing about it, please prioritize. Unrelated, but order ORD-24202 from a while back already got sorted out, so don't worry about that one.",
+  "gold": {
+    "customer_name": "Marcus Webb",
+    "order_id": "ORD-18098",
+    "product": "Ergonomic Office Chair",
+    "issue_type": "defective",
+    "priority": "high",
+    "requested_action": "repair",
+    "contact_method": null
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "id": "test_025",
+  "text": "Hello, my name is Elena Torres. I was charged twice for order ORD-22747, once for the Yoga Mat and once again a day later for no reason. Please just refund me, I don't want a replacement. By the way, my earlier order ORD-55836 arrived last month and that one was totally fine, no issues there.",
+  "gold": {
+    "customer_name": "Elena Torres",
+    "order_id": "ORD-22747",
+    "product": "Yoga Mat",
+    "issue_type": "billing",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": null
+  }
+}

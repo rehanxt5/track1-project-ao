@@ -1,0 +1,13 @@
+{
+  "id": "test_010",
+  "text": "My name's Elena Torres, order ORD-73348. I ordered a Desk Lamp and got sent the wrong size/color entirely, not what I picked. Please just refund me, I don't want a replacement.",
+  "gold": {
+    "customer_name": "Elena Torres",
+    "order_id": "ORD-73348",
+    "product": "Desk Lamp",
+    "issue_type": "wrong_item",
+    "priority": "medium",
+    "requested_action": "refund",
+    "contact_method": null
+  }
+}

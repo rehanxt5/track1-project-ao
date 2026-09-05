@@ -1,0 +1,13 @@
+{
+  "id": "dev_007",
+  "text": "Liam O'Connor here -- order ORD-97053 says delivered but I never actually received the Wireless Mouse, the box was empty. Can you let me know what's going on? not urgent, just following up when convenient.",
+  "gold": {
+    "customer_name": "Liam O'Connor",
+    "order_id": "ORD-97053",
+    "product": "Wireless Mouse",
+    "issue_type": "missing_item",
+    "priority": "low",
+    "requested_action": "information",
+    "contact_method": null
+  }
+}

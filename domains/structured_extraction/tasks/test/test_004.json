@@ -1,0 +1,13 @@
+{
+  "id": "test_004",
+  "text": "Tariq Hassan here, just wondering if order ORD-32292's Coffee Maker can be gift-wrapped before it ships, general question. Just looking for an update on this. I NEED THIS FIXED TODAY, this is unacceptable. Separately, order ORD-70596 was resolved already -- this message is about the new one.",
+  "gold": {
+    "customer_name": "Tariq Hassan",
+    "order_id": "ORD-32292",
+    "product": "Coffee Maker",
+    "issue_type": "other",
+    "priority": "urgent",
+    "requested_action": "information",
+    "contact_method": null
+  }
+}

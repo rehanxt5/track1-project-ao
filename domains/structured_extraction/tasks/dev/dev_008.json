@@ -1,0 +1,13 @@
+{
+  "id": "dev_008",
+  "text": "Hi, this is Chloe Bennett. I have a question about order ORD-75107 and whether the Desk Lamp in it is covered under warranty. Just looking for an update on this. take your time on this one. Unrelated, but order ORD-18290 from a while back already got sorted out, so don't worry about that one.",
+  "gold": {
+    "customer_name": "Chloe Bennett",
+    "order_id": "ORD-75107",
+    "product": "Desk Lamp",
+    "issue_type": "other",
+    "priority": "low",
+    "requested_action": "information",
+    "contact_method": null
+  }
+}

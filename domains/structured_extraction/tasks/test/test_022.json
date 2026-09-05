@@ -1,0 +1,13 @@
+{
+  "id": "test_022",
+  "text": "This is Miguel Santos, checking on order ORD-19973 -- the Bluetooth Speaker tracking hasn't updated in days and it's way past the delivery date. Please just refund me, I don't want a replacement. I need this sorted out soon, it's been almost two weeks. give me a call at the number on file.",
+  "gold": {
+    "customer_name": "Miguel Santos",
+    "order_id": "ORD-19973",
+    "product": "Bluetooth Speaker",
+    "issue_type": "late_delivery",
+    "priority": "high",
+    "requested_action": "refund",
+    "contact_method": "phone"
+  }
+}

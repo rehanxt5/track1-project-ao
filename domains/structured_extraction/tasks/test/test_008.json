@@ -1,0 +1,13 @@
+{
+  "id": "test_008",
+  "text": "Hello, my name is Samuel Osei. I was charged twice for order ORD-82137, once for the Travel Backpack and once again a day later for no reason. Please just refund me, I don't want a replacement. this is the third time I'm contacting you, I will be disputing the charge with my bank if I don't hear back by tomorrow. I'll be on live chat later, ping me there.",
+  "gold": {
+    "customer_name": "Samuel Osei",
+    "order_id": "ORD-82137",
+    "product": "Travel Backpack",
+    "issue_type": "billing",
+    "priority": "urgent",
+    "requested_action": "refund",
+    "contact_method": "chat"
+  }
+}

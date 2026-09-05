@@ -1,0 +1,16 @@
+{
+  "id": "test_019",
+  "question": "What is the total revenue (price times quantity) from completed orders placed by customers in 'Austin'? Round to 2 decimal places. Return a single column named total_revenue.",
+  "gold": {
+    "sql": "SELECT ROUND(COALESCE(SUM(p.price * oi.quantity), 0), 2) AS total_revenue FROM orders o JOIN customers c ON c.id = o.customer_id JOIN order_items oi ON oi.order_id = o.id JOIN products p ON p.id = oi.product_id WHERE o.status = 'completed' AND c.city = 'Austin'",
+    "columns": [
+      "total_revenue"
+    ],
+    "expected_rows": [
+      [
+        325.98
+      ]
+    ],
+    "order_matters": false
+  }
+}

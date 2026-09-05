@@ -1,0 +1,30 @@
+{
+  "id": "test_004",
+  "question": "For customers in 'Portland', how many completed orders has each one placed? Return customer name and order count, only for customers with at least one completed order, ordered by count descending then name ascending.",
+  "gold": {
+    "sql": "SELECT c.name AS name, COUNT(*) AS order_count FROM orders o JOIN customers c ON c.id = o.customer_id WHERE o.status = 'completed' AND c.city = 'Portland' GROUP BY c.id ORDER BY order_count DESC, c.name ASC",
+    "columns": [
+      "name",
+      "order_count"
+    ],
+    "expected_rows": [
+      [
+        "Elena Garcia",
+        4
+      ],
+      [
+        "Leo Patel",
+        4
+      ],
+      [
+        "Derek Nguyen",
+        2
+      ],
+      [
+        "Mira Smith",
+        1
+      ]
+    ],
+    "order_matters": true
+  }
+}

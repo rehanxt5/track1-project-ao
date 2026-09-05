@@ -1,0 +1,33 @@
+{
+  "id": "test_025",
+  "question": "Who is the manager of the employee who handled order ORD-2015? Give the manager's full name.",
+  "gold": {
+    "answer": "Ben Okafor",
+    "required_calls": [
+      {
+        "tool": "get_order",
+        "args": {
+          "order_id": "ORD-2015"
+        }
+      },
+      {
+        "tool": "get_employee",
+        "args": {
+          "employee_id": "EMP-03"
+        }
+      },
+      {
+        "tool": "get_employee",
+        "args": {
+          "employee_id": "EMP-11"
+        }
+      }
+    ],
+    "order_constraints": [
+      {
+        "before": "get_order",
+        "after": "get_employee"
+      }
+    ]
+  }
+}

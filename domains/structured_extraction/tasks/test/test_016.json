@@ -1,0 +1,13 @@
+{
+  "id": "test_016",
+  "text": "Hi, this is Noah Bergstrom. I have a question about order ORD-59007 and whether the Desk Lamp in it is covered under warranty. Can you let me know what's going on? take your time on this one. By the way, my earlier order ORD-78617 arrived last month and that one was totally fine, no issues there.",
+  "gold": {
+    "customer_name": "Noah Bergstrom",
+    "order_id": "ORD-59007",
+    "product": "Desk Lamp",
+    "issue_type": "other",
+    "priority": "low",
+    "requested_action": "information",
+    "contact_method": null
+  }
+}

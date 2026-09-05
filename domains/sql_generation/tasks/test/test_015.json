@@ -1,0 +1,34 @@
+{
+  "id": "test_015",
+  "question": "What are the top 5 products by total quantity sold in completed orders? Return columns name and total_quantity, ordered by total_quantity descending, then name ascending to break ties.",
+  "gold": {
+    "sql": "SELECT p.name AS name, SUM(oi.quantity) AS total_quantity FROM order_items oi JOIN orders o ON o.id = oi.order_id JOIN products p ON p.id = oi.product_id WHERE o.status = 'completed' GROUP BY p.id ORDER BY total_quantity DESC, p.name ASC LIMIT 5",
+    "columns": [
+      "name",
+      "total_quantity"
+    ],
+    "expected_rows": [
+      [
+        "Insulated Bottle",
+        28
+      ],
+      [
+        "Bluetooth Speaker",
+        26
+      ],
+      [
+        "Adjustable Dumbbells",
+        25
+      ],
+      [
+        "Wireless Earbuds",
+        24
+      ],
+      [
+        "Cast Iron Pan",
+        23
+      ]
+    ],
+    "order_matters": true
+  }
+}

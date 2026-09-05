@@ -1,0 +1,13 @@
+{
+  "id": "dev_005",
+  "text": "Hi, this is Tariq Hassan. I have a question about order ORD-92844 and whether the Ergonomic Office Chair in it is covered under warranty. Just looking for an update on this. I'd really appreciate a quick resolution, it's becoming a problem. Separately, order ORD-24649 was resolved already -- this message is about the new one. you can just email me the update.",
+  "gold": {
+    "customer_name": "Tariq Hassan",
+    "order_id": "ORD-92844",
+    "product": "Ergonomic Office Chair",
+    "issue_type": "other",
+    "priority": "high",
+    "requested_action": "information",
+    "contact_method": "email"
+  }
+}

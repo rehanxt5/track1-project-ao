@@ -1,0 +1,13 @@
+{
+  "id": "test_007",
+  "text": "Elena Torres here -- order ORD-12345 says delivered but I never actually received the Electric Kettle, the box was empty. Please ship a replacement unit. give me a call at the number on file.",
+  "gold": {
+    "customer_name": "Elena Torres",
+    "order_id": "ORD-12345",
+    "product": "Electric Kettle",
+    "issue_type": "missing_item",
+    "priority": "medium",
+    "requested_action": "replacement",
+    "contact_method": "phone"
+  }
+}

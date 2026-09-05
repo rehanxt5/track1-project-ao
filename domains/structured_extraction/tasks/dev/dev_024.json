@@ -1,0 +1,13 @@
+{
+  "id": "dev_024",
+  "text": "Hi, Omar Farouk here. Order ORD-64322 was supposed to be a Yoga Mat but a completely different item showed up in the box. Can you refund the charge? no rush at all, whenever you get a chance. reach me on chat, I have it open all day.",
+  "gold": {
+    "customer_name": "Omar Farouk",
+    "order_id": "ORD-64322",
+    "product": "Yoga Mat",
+    "issue_type": "wrong_item",
+    "priority": "low",
+    "requested_action": "refund",
+    "contact_method": "chat"
+  }
+}

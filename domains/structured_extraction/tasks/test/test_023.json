@@ -1,0 +1,13 @@
+{
+  "id": "test_023",
+  "text": "Fatima Zaidi here -- order ORD-54685 says delivered but I never actually received the Bluetooth Speaker, the box was empty. I'd like a new one sent out to replace it. this is the second time I'm writing about it, please prioritize. Separately, order ORD-14678 was resolved already -- this message is about the new one. I'll be on live chat later, ping me there.",
+  "gold": {
+    "customer_name": "Fatima Zaidi",
+    "order_id": "ORD-54685",
+    "product": "Bluetooth Speaker",
+    "issue_type": "missing_item",
+    "priority": "high",
+    "requested_action": "replacement",
+    "contact_method": "chat"
+  }
+}

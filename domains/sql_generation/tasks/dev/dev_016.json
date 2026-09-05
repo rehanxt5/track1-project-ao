@@ -1,0 +1,37 @@
+{
+  "id": "dev_016",
+  "question": "List the names of customers, alphabetically, who have never ordered any product in the 'kitchen' category (via a completed order).",
+  "gold": {
+    "sql": "SELECT name FROM customers WHERE id NOT IN (  SELECT o.customer_id FROM orders o   JOIN order_items oi ON oi.order_id = o.id   JOIN products p ON p.id = oi.product_id   WHERE o.status = 'completed' AND p.category = 'kitchen') ORDER BY name ASC",
+    "columns": [
+      "name"
+    ],
+    "expected_rows": [
+      [
+        "Ben Smith"
+      ],
+      [
+        "Cora Okoro"
+      ],
+      [
+        "Hassan Dubois"
+      ],
+      [
+        "Ines Okoro"
+      ],
+      [
+        "Kira Rossi"
+      ],
+      [
+        "Kira Smith"
+      ],
+      [
+        "Mira Patel"
+      ],
+      [
+        "Sam Nguyen"
+      ]
+    ],
+    "order_matters": true
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "id": "dev_014",
+  "question": "List the names of customers with loyalty_tier 'gold', ordered by signup_date ascending.",
+  "gold": {
+    "sql": "SELECT name FROM customers WHERE loyalty_tier = 'gold' ORDER BY signup_date ASC",
+    "columns": [
+      "name"
+    ],
+    "expected_rows": [
+      [
+        "Kira Rossi"
+      ],
+      [
+        "Elena Garcia"
+      ]
+    ],
+    "order_matters": true
+  }
+}

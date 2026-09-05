@@ -1,0 +1,25 @@
+[
+  {
+    "name": "get_schema",
+    "description": "Return the JSON schema (field names, types, and allowed enum values) that the extracted output must conform to.",
+    "parameters": {
+      "type": "object",
+      "properties": {},
+      "required": []
+    }
+  },
+  {
+    "name": "validate_extraction",
+    "description": "Validate a candidate extraction against the target schema. Returns which required fields are missing and which fields have an invalid enum value or wrong shape. Does NOT reveal the correct values -- use it only to catch your own structural mistakes.",
+    "parameters": {
+      "type": "object",
+      "properties": {
+        "candidate_json": {
+          "type": "string",
+          "description": "JSON string of the candidate extraction object to validate."
+        }
+      },
+      "required": ["candidate_json"]
+    }
+  }
+]
