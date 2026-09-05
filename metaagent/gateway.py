@@ -67,6 +67,13 @@ class GatewayError(Exception):
     usable completion."""
 
 
+class GatewayRequestError(GatewayError):
+    """Raised for deterministic, request-shaped failures: reasoning-budget
+    exhaustion, JSON-schema repair exhaustion, non-retryable 4xx. A different
+    provider cannot fix these by being retried, so `complete()` raises them
+    immediately without attempting the fallback provider."""
+
+
 # ---------------------------------------------------------------------------
 # Public entry point
 # ---------------------------------------------------------------------------
@@ -89,6 +96,10 @@ async def complete(
 
     try:
         return await _complete_with_provider(provider, payload, messages, response_format, mode)
+    except GatewayRequestError:
+        # Deterministic, request-shaped failure: a different provider would
+        # fail the same way, so don't burn tokens/latency on a fallback call.
+        raise
     except GatewayError as primary_exc:
         fallback = get_fallback_config()
         logger.warning(
@@ -187,7 +198,7 @@ async def _call_provider_with_retries(provider: ProviderConfig, payload: dict) -
                     MAX_RETRIES,
                 )
             elif resp.status_code >= 400:
-                raise GatewayError(
+                raise GatewayRequestError(
                     f"HTTP {resp.status_code} from {provider.base_url}: {resp.text[:200]}"
                 )
             else:
@@ -238,7 +249,7 @@ async def _complete_with_provider(
         reasoning_out = reasoning
 
         if not text and finish_reason == "length":
-            raise GatewayError(
+            raise GatewayRequestError(
                 "reasoning budget exhausted: provider truncated the response "
                 f"(finish_reason=length) before emitting an answer "
                 f"(reasoning_tokens={usage.get('reasoning_tokens', 0)}); "
@@ -261,7 +272,7 @@ async def _complete_with_provider(
             error,
         )
         if json_attempt >= JSON_REPAIR_RETRIES:
-            raise GatewayError(f"model returned invalid JSON after {JSON_REPAIR_RETRIES + 1} attempts: {error}")
+            raise GatewayRequestError(f"model returned invalid JSON after {JSON_REPAIR_RETRIES + 1} attempts: {error}")
 
         attempt_messages = attempt_messages + [
             {"role": "assistant", "content": text},

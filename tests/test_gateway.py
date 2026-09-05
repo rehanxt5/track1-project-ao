@@ -301,10 +301,10 @@ async def test_json_repair_validates_required_fields(monkeypatch):
 
 
 async def test_json_repair_exhausted_raises(monkeypatch):
+    # Schema validation failure after the repair loop is a deterministic,
+    # request-shaped error: a fallback provider would fail the same way, so
+    # no fallback call should be made.
     _configure_live_env(monkeypatch)
-    monkeypatch.setenv("FALLBACK_BASE_URL", "https://worker.example.com/v1")
-    monkeypatch.setenv("FALLBACK_API_KEY", "worker-key")
-    monkeypatch.setenv("FALLBACK_MODEL", "worker-model")
     calls = {"count": 0}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -313,11 +313,11 @@ async def test_json_repair_exhausted_raises(monkeypatch):
 
     _install_transport(monkeypatch, handler)
 
-    with pytest.raises(GatewayError):
+    with pytest.raises(gateway.GatewayRequestError):
         await complete("worker", MESSAGES, response_format={"schema": SCHEMA})
 
-    # (JSON_REPAIR_RETRIES + 1) attempts against primary, then again against fallback.
-    assert calls["count"] == (gateway.JSON_REPAIR_RETRIES + 1) * 2
+    # (JSON_REPAIR_RETRIES + 1) attempts against primary only, no fallback call.
+    assert calls["count"] == gateway.JSON_REPAIR_RETRIES + 1
 
 
 async def test_json_repair_strips_markdown_code_fence(monkeypatch):
@@ -515,20 +515,26 @@ async def test_default_max_tokens_floor_applied_when_omitted(monkeypatch):
     assert gateway.DEFAULT_MAX_TOKENS >= 1024
 
 
-async def test_truncated_reasoning_falls_back_to_fallback_provider(monkeypatch):
+async def test_truncated_reasoning_does_not_trigger_fallback(monkeypatch):
+    # Reasoning-budget exhaustion is deterministic and request-shaped: a
+    # different provider would fail the same way, so retrying against the
+    # fallback would just double the tokens burned and the latency paid for
+    # a call that's guaranteed to fail identically. Exactly one upstream call
+    # should be made, and it should be to the primary (worker) provider only.
     _configure_live_env(monkeypatch)
+    calls = {"count": 0}
 
     def handler(request: httpx.Request) -> httpx.Response:
-        if request.url.host == "worker.example.com":
-            return _json_response(
-                200,
-                _reasoning_response(content=None, reasoning="cut off", finish_reason="length", completion_tokens=64),
-            )
-        assert request.url.host == "fallback.example.com"
-        return _json_response(200, _openai_response("from fallback", usage={"prompt_tokens": 2, "completion_tokens": 2}))
+        calls["count"] += 1
+        assert request.url.host == "worker.example.com"
+        return _json_response(
+            200,
+            _reasoning_response(content=None, reasoning="cut off", finish_reason="length", completion_tokens=64),
+        )
 
     _install_transport(monkeypatch, handler)
 
-    result = await complete("worker", MESSAGES)
+    with pytest.raises(gateway.GatewayRequestError, match="reasoning budget exhausted"):
+        await complete("worker", MESSAGES)
 
-    assert result.text == "from fallback"
+    assert calls["count"] == 1
