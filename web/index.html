@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Meta-Agent Studio</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+<div class="shell">
+
+  <div class="topbar">
+    <div class="wordmark"><span class="dot"></span>Meta-Agent Studio <small>track 1 -- automated agent engineering</small></div>
+    <div class="tabs">
+      <button class="tab active" data-view="studio">Studio</button>
+      <button class="tab" data-view="optimize">Optimization</button>
+    </div>
+  </div>
+
+  <!-- ============================== STUDIO ============================== -->
+  <section id="view-studio" class="view active">
+
+    <div class="error-banner" id="studio-error"></div>
+
+    <div class="goal-panel" id="goal-panel">
+      <p class="panel-label">goal</p>
+      <textarea id="goal-input" placeholder="Describe what the agent should accomplish, in plain English..."></textarea>
+
+      <div class="domain-row" id="domain-row">
+        <!-- domain chips injected here -->
+        <div class="spacer"></div>
+        <button class="chip" id="custom-chip" type="button">custom tools</button>
+        <div class="n-seeds">
+          <label for="n-seeds-select">candidates</label>
+          <select id="n-seeds-select">
+            <option value="2">2</option>
+            <option value="3" selected>3</option>
+          </select>
+        </div>
+        <button class="primary" id="generate-btn">Generate</button>
+      </div>
+      <div class="tool-preview" id="tool-preview"></div>
+      <div class="custom-tools-panel" id="custom-tools-panel">
+        <p class="panel-label">custom tools (JSON array of <code>{"name","description"}</code>)</p>
+        <textarea id="custom-tools-input" placeholder='[{"name": "search", "description": "Search the web for a query."}]'></textarea>
+      </div>
+    </div>
+
+    <div class="stepper" id="stepper">
+      <div class="step" data-stage="perceive"><div class="line"><div class="line-fill"></div></div><div class="node"></div><div class="label">perceive</div></div>
+      <div class="step" data-stage="retrieve"><div class="line"><div class="line-fill"></div></div><div class="node"></div><div class="label">retrieve</div></div>
+      <div class="step" data-stage="select"><div class="line"><div class="line-fill"></div></div><div class="node"></div><div class="label">select philosophy</div></div>
+      <div class="step" data-stage="synthesize"><div class="line"><div class="line-fill"></div></div><div class="node"></div><div class="label">synthesize</div></div>
+      <div class="step" data-stage="verify"><div class="line"><div class="line-fill"></div></div><div class="node"></div><div class="label">verify</div></div>
+    </div>
+
+    <div class="archive-panel" id="archive-panel">
+      <p class="heading" id="archive-heading"></p>
+      <div class="archive-entries" id="archive-entries"></div>
+    </div>
+
+    <div class="candidates" id="candidates"></div>
+
+  </section>
+
+  <!-- ============================ OPTIMIZATION =========================== -->
+  <section id="view-optimize" class="view">
+    <div id="optimize-empty" class="empty-state" style="display:none">
+      <h2>No optimization runs yet</h2>
+      <p>Once <code>metaagent/loop.py</code> starts appending iteration records to <code>results/</code>, this view fills in automatically with accuracy, reliability, cost and speed climbing across rounds, plus a diff of what changed each iteration.</p>
+    </div>
+    <div id="optimize-content" style="display:none">
+      <div class="chart-grid">
+        <div class="chart-panel"><h3>Accuracy</h3><p class="sub">mean score, dev vs. held-out test</p><div id="chart-accuracy"></div></div>
+        <div class="chart-panel"><h3>Reliability</h3><p class="sub">score stddev across test tasks -- lower is steadier</p><div id="chart-reliability"></div></div>
+        <div class="chart-panel"><h3>Cost</h3><p class="sub">tokens per iteration, input + output</p><div id="chart-cost"></div></div>
+        <div class="chart-panel"><h3>Speed</h3><p class="sub">mean latency per iteration (ms)</p><div id="chart-speed"></div></div>
+      </div>
+      <div class="diff-panel">
+        <h3>What changed</h3>
+        <div class="iter-picker" id="iter-picker"></div>
+        <div class="diff-rationale" id="diff-rationale"></div>
+        <ul class="diff-list" id="diff-list"></ul>
+      </div>
+    </div>
+  </section>
+
+  <footer class="hint">GATEWAY_MODE controls whether generation runs offline (fake) or against a live provider.</footer>
+</div>
+
+<script src="/app.js"></script>
+</body>
+</html>

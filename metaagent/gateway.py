@@ -31,6 +31,15 @@ JSON_REPAIR_RETRIES = 2
 REQUEST_TIMEOUT_SECONDS = 60.0
 _RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 
+# Reasoning models (e.g. glm-4-7-flash) spend an unbounded number of tokens on
+# hidden chain-of-thought before the answer even starts. A low max_tokens (or
+# an omitted one, left to the provider's own tiny default) truncates them
+# mid-thought: content stays null and complete() would silently return "".
+# 2048 gives comfortable headroom above the ~150-token completions observed
+# for short answers with reasoning enabled; see the empty-content+finish_reason
+# ="length" check below for the case where even this floor isn't enough.
+DEFAULT_MAX_TOKENS = 2048
+
 _TYPE_MAP: dict[str, Any] = {
     "string": str,
     "number": (int, float),
@@ -49,11 +58,20 @@ class Completion:
     latency_ms: float
     model: str
     provider: str
+    reasoning: str = ""
+    reasoning_tokens: int = 0
 
 
 class GatewayError(Exception):
     """Raised when a provider (and its fallback) both fail to produce a
     usable completion."""
+
+
+class GatewayRequestError(GatewayError):
+    """Raised for deterministic, request-shaped failures: reasoning-budget
+    exhaustion, JSON-schema repair exhaustion, non-retryable 4xx. A different
+    provider cannot fix these by being retried, so `complete()` raises them
+    immediately without attempting the fallback provider."""
 
 
 # ---------------------------------------------------------------------------
@@ -67,16 +85,21 @@ async def complete(
     response_format: dict | None = None,
     max_tokens: int | None = None,
     temperature: float | None = None,
+    reasoning: bool | str | None = None,
 ) -> Completion:
     mode = gateway_mode()
     if mode == "fake":
         return await _fake_complete(layer, messages, response_format)
 
     provider = get_layer_config(layer)
-    payload = _build_payload(provider.model, messages, response_format, max_tokens, temperature)
+    payload = _build_payload(provider.model, messages, response_format, max_tokens, temperature, reasoning)
 
     try:
         return await _complete_with_provider(provider, payload, messages, response_format, mode)
+    except GatewayRequestError:
+        # Deterministic, request-shaped failure: a different provider would
+        # fail the same way, so don't burn tokens/latency on a fallback call.
+        raise
     except GatewayError as primary_exc:
         fallback = get_fallback_config()
         logger.warning(
@@ -86,7 +109,7 @@ async def complete(
             fallback.base_url,
             primary_exc,
         )
-        fallback_payload = _build_payload(fallback.model, messages, response_format, max_tokens, temperature)
+        fallback_payload = _build_payload(fallback.model, messages, response_format, max_tokens, temperature, reasoning)
         try:
             return await _complete_with_provider(fallback, fallback_payload, messages, response_format, mode)
         except GatewayError as fallback_exc:
@@ -105,14 +128,28 @@ def _build_payload(
     response_format: dict | None,
     max_tokens: int | None,
     temperature: float | None,
+    reasoning: bool | str | None = None,
 ) -> dict:
     payload: dict[str, Any] = {"model": model, "messages": messages}
     if response_format is not None:
         payload["response_format"] = response_format
-    if max_tokens is not None:
-        payload["max_tokens"] = max_tokens
+    payload["max_tokens"] = max_tokens if max_tokens is not None else DEFAULT_MAX_TOKENS
     if temperature is not None:
         payload["temperature"] = temperature
+    if reasoning is not None:
+        # `reasoning` is the optimizer-facing lever for the accuracy/cost/speed
+        # tradeoff: reasoning models burn ~70x more tokens thinking than
+        # answering, so being able to dial this per role matters. We send both
+        # OpenAI-style `reasoning_effort` and vLLM-style `chat_template_kwargs`
+        # since different OpenAI-compatible backends honor one or the other.
+        if reasoning is False or reasoning == "none":
+            payload["reasoning_effort"] = "none"
+            payload["chat_template_kwargs"] = {"enable_thinking": False}
+        elif reasoning is True:
+            payload["chat_template_kwargs"] = {"enable_thinking": True}
+        else:
+            payload["reasoning_effort"] = reasoning
+            payload["chat_template_kwargs"] = {"enable_thinking": True}
     return payload
 
 
@@ -161,7 +198,7 @@ async def _call_provider_with_retries(provider: ProviderConfig, payload: dict) -
                     MAX_RETRIES,
                 )
             elif resp.status_code >= 400:
-                raise GatewayError(
+                raise GatewayRequestError(
                     f"HTTP {resp.status_code} from {provider.base_url}: {resp.text[:200]}"
                 )
             else:
@@ -193,6 +230,7 @@ async def _complete_with_provider(
     schema = _extract_schema(response_format)
     attempt_messages = list(messages)
     text_out = ""
+    reasoning_out = ""
     data: dict = {}
     latency_ms = 0.0
 
@@ -207,7 +245,16 @@ async def _complete_with_provider(
             if mode == "record":
                 _record_response(provider, current_payload, data)
 
-        text, usage = _extract_text_and_usage(data)
+        text, reasoning, finish_reason, usage = _extract_text_and_usage(data)
+        reasoning_out = reasoning
+
+        if not text and finish_reason == "length":
+            raise GatewayRequestError(
+                "reasoning budget exhausted: provider truncated the response "
+                f"(finish_reason=length) before emitting an answer "
+                f"(reasoning_tokens={usage.get('reasoning_tokens', 0)}); "
+                "raise max_tokens or pass reasoning=\"none\"/False for this role"
+            )
 
         if response_format is None:
             text_out = text
@@ -225,7 +272,7 @@ async def _complete_with_provider(
             error,
         )
         if json_attempt >= JSON_REPAIR_RETRIES:
-            raise GatewayError(f"model returned invalid JSON after {JSON_REPAIR_RETRIES + 1} attempts: {error}")
+            raise GatewayRequestError(f"model returned invalid JSON after {JSON_REPAIR_RETRIES + 1} attempts: {error}")
 
         attempt_messages = attempt_messages + [
             {"role": "assistant", "content": text},
@@ -240,6 +287,7 @@ async def _complete_with_provider(
 
     input_tokens = usage.get("input_tokens")
     output_tokens = usage.get("output_tokens")
+    reasoning_tokens = usage.get("reasoning_tokens", 0)
     estimated = False
     if input_tokens is None:
         input_tokens = _messages_token_estimate(messages)
@@ -259,20 +307,41 @@ async def _complete_with_provider(
         latency_ms=latency_ms,
         model=provider.model,
         provider=provider_label,
+        reasoning=reasoning_out,
+        reasoning_tokens=reasoning_tokens,
     )
 
 
-def _extract_text_and_usage(data: dict) -> tuple[str, dict]:
+def _extract_text_and_usage(data: dict) -> tuple[str, str, str | None, dict]:
+    """Pull answer text, chain-of-thought, finish reason, and usage out of an
+    OpenAI-compatible response. Reasoning models put chain-of-thought in
+    `message.reasoning` and leave `message.content` null until the answer
+    starts, so `content` must never be assumed present."""
     choice = data["choices"][0]
     message = choice.get("message", {})
     text = message.get("content") or ""
+    reasoning = message.get("reasoning") or message.get("reasoning_content") or ""
+    finish_reason = choice.get("finish_reason")
+
     usage_raw = data.get("usage") or {}
     usage: dict[str, int] = {}
     if "prompt_tokens" in usage_raw:
         usage["input_tokens"] = usage_raw["prompt_tokens"]
-    if "completion_tokens" in usage_raw:
-        usage["output_tokens"] = usage_raw["completion_tokens"]
-    return text, usage
+
+    completion_tokens = usage_raw.get("completion_tokens")
+    details = usage_raw.get("completion_tokens_details") or {}
+    reasoning_tokens = details.get("reasoning_tokens")
+    if reasoning_tokens is None:
+        # Provider didn't break out reasoning tokens explicitly (TensorMux
+        # doesn't); estimate from the reasoning text so cost accounting can
+        # still separate thinking tokens from answer tokens.
+        reasoning_tokens = _estimate_tokens(reasoning)
+    usage["reasoning_tokens"] = reasoning_tokens
+
+    if completion_tokens is not None:
+        usage["output_tokens"] = max(completion_tokens - reasoning_tokens, 0)
+
+    return text, reasoning, finish_reason, usage
 
 
 def _provider_name(base_url: str) -> str:
