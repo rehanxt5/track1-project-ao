@@ -4,7 +4,7 @@ import httpx
 import pytest
 
 from metaagent import gateway
-from metaagent.gateway import GatewayError, complete
+from metaagent.gateway import GatewayError, GatewayReasoningBudgetError, complete
 
 MESSAGES = [{"role": "user", "content": "hello there"}]
 
@@ -403,7 +403,7 @@ async def test_truncated_reasoning_raises_instead_of_returning_empty(monkeypatch
 
     _install_transport(monkeypatch, handler)
 
-    with pytest.raises(GatewayError, match="reasoning budget exhausted"):
+    with pytest.raises(GatewayReasoningBudgetError, match="reasoning budget exhausted"):
         await complete("worker", MESSAGES, max_tokens=64)
 
 
@@ -512,7 +512,18 @@ async def test_default_max_tokens_floor_applied_when_omitted(monkeypatch):
     await complete("worker", MESSAGES)
 
     assert seen_payloads[0]["max_tokens"] == gateway.DEFAULT_MAX_TOKENS
-    assert gateway.DEFAULT_MAX_TOKENS >= 1024
+    # 2048 was measured live to truncate glm-4-7-flash mid-reasoning before
+    # any output (see DEFAULT_MAX_TOKENS docstring); the floor must clear
+    # that by a wide margin, not just be "more than a token or two".
+    assert gateway.DEFAULT_MAX_TOKENS >= 8192
+
+
+def test_reasoning_budget_error_is_a_request_error():
+    # Callers (e.g. the architect) that catch the broader GatewayRequestError
+    # for other deterministic failures must still catch this one; callers
+    # that want to retry specifically on budget exhaustion can catch the
+    # narrower subclass instead.
+    assert issubclass(GatewayReasoningBudgetError, gateway.GatewayRequestError)
 
 
 async def test_truncated_reasoning_does_not_trigger_fallback(monkeypatch):
@@ -534,7 +545,7 @@ async def test_truncated_reasoning_does_not_trigger_fallback(monkeypatch):
 
     _install_transport(monkeypatch, handler)
 
-    with pytest.raises(gateway.GatewayRequestError, match="reasoning budget exhausted"):
+    with pytest.raises(gateway.GatewayReasoningBudgetError, match="reasoning budget exhausted"):
         await complete("worker", MESSAGES)
 
     assert calls["count"] == 1

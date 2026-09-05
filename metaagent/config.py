@@ -53,3 +53,31 @@ def get_fallback_config() -> ProviderConfig:
 def gateway_mode() -> str:
     """One of "live" (default), "fake", "record", or "replay"."""
     return os.environ.get("GATEWAY_MODE", "live").lower()
+
+
+def architect_reasoning_default() -> bool | str:
+    """Whether the architect's SYNTHESIZE/repair calls request chain-of-
+    thought by default, overridable per-call via generate(reasoning=...).
+
+    Measured live against glm-4-7-flash/TensorMux, 3 trials each, on
+    structured_extraction/generate(n_seeds=3):
+      reasoning=True:  avg 98.7s/call, avg 2923 reasoning tokens burned,
+                        33% of trials verified all seeds on the first try
+                        (the rest needed a repair round-trip).
+      reasoning=False: avg 31.8s/call (~3x faster), 0 reasoning tokens,
+                        67% first-try verification rate, comparable seed
+                        yield (2.7 vs 3.0 avg valid seeds across trials).
+    Reasoning bought slower, not-obviously-better synthesis in this
+    comparison, so it defaults off. Set ARCHITECT_REASONING=true (or a
+    reasoning_effort string like "low") to turn it back on for
+    experimentation; see PR description for the full comparison.
+    """
+    raw = os.environ.get("ARCHITECT_REASONING", "").strip()
+    if not raw:
+        return False
+    lowered = raw.lower()
+    if lowered in ("0", "false", "off", "none"):
+        return False
+    if lowered in ("1", "true", "on"):
+        return True
+    return raw

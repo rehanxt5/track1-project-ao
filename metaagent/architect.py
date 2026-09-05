@@ -15,13 +15,48 @@ so it has zero import-time dependency on modules that don't exist yet.
 from __future__ import annotations
 
 import json
-from typing import Any, Optional, Protocol
+import logging
+from typing import Any, Optional, Protocol, Union
 
 from pydantic import ValidationError
 
 from metaagent.archive import Archive, ArchiveEntry
+from metaagent.config import architect_reasoning_default
+from metaagent.gateway import GatewayReasoningBudgetError
 from metaagent.spec.models import SPEC_VERSION, AgentSpec, DesignPhilosophy
 from metaagent.spec.verify import VerificationError, verify_spec
+
+logger = logging.getLogger("metaagent.architect")
+
+# SYNTHESIZE and repair calls are the largest outputs in the system: a
+# reasoning model thinks silently for a while, then emits either N full
+# multi-role AgentSpec JSON objects at once (synthesis) or one (repair).
+# Relying on the gateway's global DEFAULT_MAX_TOKENS truncates them (that's
+# the bug this sizing fixes) so these calls always pass an explicit budget.
+#
+# Measured live against glm-4-7-flash/TensorMux, architect.generate(n_seeds=3):
+#   max_tokens=2048  -> FAILS, truncated at 2130 reasoning tokens, 0 output
+#   max_tokens=8192  -> ok, 1705 reasoning + 3227 output tokens
+#   max_tokens=16384 -> ok, 3420 reasoning + 1154 output tokens
+# SYNTHESIS_REASONING_RESERVE sits above the largest reasoning spend
+# observed (3420) with headroom for slower runs; SYNTHESIS_TOKENS_PER_SEED
+# covers one multi-role AgentSpec JSON object's worth of output.
+SYNTHESIS_REASONING_RESERVE = 4096
+SYNTHESIS_TOKENS_PER_SEED = 2048
+
+# If a synthesis/repair call still exhausts its budget on reasoning alone
+# (GatewayReasoningBudgetError), retry exactly once with a bigger budget
+# rather than dropping the seed. Capped so a pathological prompt can't spiral
+# into an expensive loop.
+BUDGET_RETRY_MULTIPLIER = 2
+BUDGET_RETRY_CAP = 32768
+
+
+def _synthesis_max_tokens(n_seeds: int) -> int:
+    return SYNTHESIS_REASONING_RESERVE + SYNTHESIS_TOKENS_PER_SEED * max(1, n_seeds)
+
+
+REPAIR_MAX_TOKENS = _synthesis_max_tokens(1)
 
 
 class ArchitectError(RuntimeError):
@@ -46,7 +81,52 @@ class CompleteFn(Protocol):
         response_format: Optional[dict[str, Any]] = None,
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
+        reasoning: Optional[Union[bool, str]] = None,
     ) -> Completion: ...
+
+
+async def _complete_with_budget_retry(
+    complete_fn: CompleteFn,
+    layer: str,
+    messages: list[dict[str, str]],
+    *,
+    response_format: Optional[dict[str, Any]],
+    max_tokens: int,
+    temperature: Optional[float],
+    reasoning: Optional[Union[bool, str]],
+) -> Completion:
+    """Call complete_fn with the given budget; if a reasoning model exhausts
+    it purely on chain-of-thought, retry exactly once with a larger budget
+    before letting the error propagate. See GatewayReasoningBudgetError."""
+    try:
+        return await complete_fn(
+            layer,
+            messages,
+            response_format=response_format,
+            max_tokens=max_tokens,
+            temperature=temperature,
+            reasoning=reasoning,
+        )
+    except GatewayReasoningBudgetError as exc:
+        retry_tokens = min(max_tokens * BUDGET_RETRY_MULTIPLIER, BUDGET_RETRY_CAP)
+        if retry_tokens <= max_tokens:
+            raise
+        logger.warning(
+            "architect retrying %s call with larger budget after reasoning "
+            "exhaustion: %d -> %d max_tokens (%s)",
+            layer,
+            max_tokens,
+            retry_tokens,
+            exc,
+        )
+        return await complete_fn(
+            layer,
+            messages,
+            response_format=response_format,
+            max_tokens=retry_tokens,
+            temperature=temperature,
+            reasoning=reasoning,
+        )
 
 
 PHILOSOPHY_LIBRARY: dict[str, dict[str, str]] = {
@@ -82,12 +162,16 @@ async def generate(
     *,
     complete_fn: Optional[CompleteFn] = None,
     max_repair_attempts: int = 2,
+    reasoning: Optional[Union[bool, str]] = None,
 ) -> list[AgentSpec]:
     if not goal or not goal.strip():
         raise ValueError("goal must not be blank")
 
     if complete_fn is None:
         from metaagent.gateway import complete as complete_fn  # noqa: PLC0415
+
+    if reasoning is None:
+        reasoning = architect_reasoning_default()
 
     # RETRIEVE
     retrieved = archive.retrieve_similar(goal, tools, k=3) if archive is not None else []
@@ -98,8 +182,14 @@ async def generate(
 
     # SYNTHESIZE
     messages = _build_synthesis_prompt(goal, tools, philosophies, failure_modes)
-    completion = await complete_fn(
-        "meta", messages, response_format={"type": "json_object"}, temperature=0.9,
+    completion = await _complete_with_budget_retry(
+        complete_fn,
+        "meta",
+        messages,
+        response_format={"type": "json_object"},
+        max_tokens=_synthesis_max_tokens(len(philosophies)),
+        temperature=0.9,
+        reasoning=reasoning,
     )
     raw_seeds = _parse_seeds(completion.text)
     raw_seeds = raw_seeds[: len(philosophies)]
@@ -108,7 +198,9 @@ async def generate(
     specs: list[AgentSpec] = []
     for i, philosophy in enumerate(philosophies):
         raw = raw_seeds[i] if i < len(raw_seeds) else {}
-        spec = await _verify_and_repair(raw, tools, complete_fn, philosophy, max_repair_attempts)
+        spec = await _verify_and_repair(
+            raw, tools, complete_fn, philosophy, max_repair_attempts, reasoning
+        )
         if spec is not None:
             specs.append(spec)
 
@@ -242,6 +334,7 @@ async def _repair(
     candidate: dict[str, Any],
     errors_desc: str,
     philosophy: DesignPhilosophy,
+    reasoning: Optional[Union[bool, str]],
 ) -> dict[str, Any]:
     messages = [
         {
@@ -259,8 +352,14 @@ async def _repair(
             "content": f"Spec:\n{json.dumps(candidate)}\n\nProblems:\n{errors_desc}",
         },
     ]
-    completion = await complete_fn(
-        "meta", messages, response_format={"type": "json_object"}, temperature=0.2,
+    completion = await _complete_with_budget_retry(
+        complete_fn,
+        "meta",
+        messages,
+        response_format={"type": "json_object"},
+        max_tokens=REPAIR_MAX_TOKENS,
+        temperature=0.2,
+        reasoning=reasoning,
     )
     payload = _extract_json(completion.text)
     if isinstance(payload, list):
@@ -274,6 +373,7 @@ async def _verify_and_repair(
     complete_fn: CompleteFn,
     philosophy: DesignPhilosophy,
     max_repair_attempts: int,
+    reasoning: Optional[Union[bool, str]] = None,
 ) -> Optional[AgentSpec]:
     candidate = raw
     errors_desc = "no candidate was synthesized for this seed"
@@ -291,5 +391,5 @@ async def _verify_and_repair(
 
         if attempt == max_repair_attempts:
             return None
-        candidate = await _repair(complete_fn, candidate, errors_desc, philosophy)
+        candidate = await _repair(complete_fn, candidate, errors_desc, philosophy, reasoning)
     return None

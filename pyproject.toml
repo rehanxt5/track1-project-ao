@@ -22,3 +22,6 @@ include = ["metaagent*"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+markers = [
+    "live: exercises the real TensorMux API; requires GATEWAY_MODE=live and a real key, skipped otherwise",
+]
