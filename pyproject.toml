@@ -1,0 +1,22 @@
+[project]
+name = "metaagent"
+version = "0.1.0"
+description = "Meta-system that designs, runs, diagnoses, and improves LLM agents."
+requires-python = ">=3.11"
+dependencies = [
+    "httpx>=0.27",
+    "pydantic>=2.6",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "python-dotenv>=1.0",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["metaagent*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
