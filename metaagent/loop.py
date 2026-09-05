@@ -142,7 +142,7 @@ async def run_loop(
     best_spec: Optional[AgentSpec] = None
     best_dev_score = float("-inf")
     for seed in seeds:
-        dev_batch = await run_batch(seed, domain, "dev", k=k, concurrency=concurrency)
+        dev_batch = await run_batch(seed, domain, "dev", k=k, concurrency=concurrency, complete_fn=complete_fn)
         _archive_attempt(
             archive, goal=goal_text, domain=domain, spec=seed,
             dev_batch=dev_batch, test_batch=None, max_steps=seed.orchestration.max_steps,
@@ -156,7 +156,7 @@ async def run_loop(
     plateau_count = 0
 
     for i in range(iterations):
-        dev_batch = await run_batch(candidate, domain, "dev", k=k, concurrency=concurrency)
+        dev_batch = await run_batch(candidate, domain, "dev", k=k, concurrency=concurrency, complete_fn=complete_fn)
 
         # DEV feeds the optimizer. TEST below is reporting-only and must never
         # be passed to analyze() or optimize().
@@ -164,7 +164,7 @@ async def run_loop(
             dev_batch, complete_fn=complete_fn, max_steps=candidate.orchestration.max_steps,
         )
 
-        test_batch = await run_batch(candidate, domain, "test", k=k, concurrency=concurrency)
+        test_batch = await run_batch(candidate, domain, "test", k=k, concurrency=concurrency, complete_fn=complete_fn)
 
         _archive_attempt(
             archive, goal=goal_text, domain=domain, spec=candidate,

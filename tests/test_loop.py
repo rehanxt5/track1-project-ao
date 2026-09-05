@@ -40,7 +40,7 @@ def _make_fake_run_batch():
     dev_run = _run("dev-1", passed=False, details={"parse_error": "bad json"})
     test_run = _run("test-1", passed=True, details={})
 
-    async def fake_run_batch(spec, domain, split, k=3, concurrency=4):
+    async def fake_run_batch(spec, domain, split, k=3, concurrency=4, **kwargs):
         if split == "dev":
             return BatchResult(
                 spec_version=spec.version, domain=domain, split="dev", k=k,

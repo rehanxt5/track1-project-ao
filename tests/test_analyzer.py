@@ -42,11 +42,37 @@ def test_classify_run_tool_call_errored_from_execution_error():
 def test_classify_run_tool_call_errored_from_step_error_takes_priority():
     run = _run(
         score=Score(score=0.0, passed=False, details={"parse_error": "bad json"}),
-        steps=[{"index": 2, "tool": "run_query", "error": "syntax error"}],
+        steps=[{"index": 2, "kind": "tool", "tool_name": "run_query", "output": None, "error": "syntax error"}],
     )
     mode, evidence = classify_run(run)
     assert mode is FailureMode.TOOL_CALL_ERRORED
     assert "run_query" in evidence and "syntax error" in evidence
+
+
+def test_classify_run_ignores_tool_data_error_that_did_not_crash():
+    # A tool that ran fine but returned {"error": ...} as normal domain data
+    # (e.g. "no such order id") must NOT be classified as tool_call_errored --
+    # the interpreter doesn't retry it, and it's really a bad-argument signal.
+    run = _run(
+        score=Score(score=0.0, passed=False, details={"parse_error": "bad json"}),
+        steps=[
+            {
+                "index": 0, "kind": "tool", "tool_name": "get_order",
+                "output": {"error": "no such order id"}, "error": "no such order id",
+            }
+        ],
+    )
+    mode, _ = classify_run(run)
+    assert mode is FailureMode.MALFORMED_OUTPUT
+
+
+def test_classify_run_ignores_llm_kind_step_errors_for_tool_call_errored():
+    run = _run(
+        score=Score(score=0.0, passed=False, details={"execution_error": "no such column"}),
+        steps=[{"index": 0, "kind": "llm", "tool_name": None, "output": None, "error": "transient retry"}],
+    )
+    mode, _ = classify_run(run)
+    assert mode is FailureMode.TOOL_CALL_ERRORED  # falls through to details.execution_error, not the llm step
 
 
 def test_classify_run_missing_context_when_no_tool_calls_attempted():

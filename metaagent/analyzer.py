@@ -98,11 +98,19 @@ def classify_run(run: Any, *, max_steps: Optional[int] = None) -> Optional[tuple
         return FailureMode.RUNNER_ERROR, f"run error: {error}"
 
     for step in getattr(run, "steps", None) or []:
+        # A "tool" step's `error` can mean either the tool call raised (a
+        # genuine interpreter-level failure, `output` is None) or the tool
+        # executed fine but returned `{"error": ...}` as normal domain data
+        # (e.g. "no such order id") -- the interpreter does not retry that
+        # case, and it's evidence of a bad argument, not a broken tool call.
+        # Only the former counts here.
+        if _step_get(step, "kind") != "tool":
+            continue
         step_error = _step_get(step, "error")
-        if step_error:
-            tool = _step_get(step, "tool", "?")
+        if step_error and _step_get(step, "output") is None:
+            tool_name = _step_get(step, "tool_name", "?")
             idx = _step_get(step, "index", "?")
-            return FailureMode.TOOL_CALL_ERRORED, f"step {idx} (tool={tool!r}) errored: {step_error}"
+            return FailureMode.TOOL_CALL_ERRORED, f"step {idx} (tool={tool_name!r}) crashed: {step_error}"
 
     score = getattr(run, "score", None)
     if score is None:
