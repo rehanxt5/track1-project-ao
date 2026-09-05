@@ -35,10 +35,22 @@ _RETRYABLE_STATUS = {429, 500, 502, 503, 504}
 # hidden chain-of-thought before the answer even starts. A low max_tokens (or
 # an omitted one, left to the provider's own tiny default) truncates them
 # mid-thought: content stays null and complete() would silently return "".
-# 2048 gives comfortable headroom above the ~150-token completions observed
-# for short answers with reasoning enabled; see the empty-content+finish_reason
-# ="length" check below for the case where even this floor isn't enough.
-DEFAULT_MAX_TOKENS = 2048
+#
+# Measured live against glm-4-7-flash/TensorMux on architect.generate(n_seeds=3)
+# (SYNTHESIZE: reasoning + a 3-seed multi-role JSON spec in one completion):
+#   max_tokens=2048  -> FAILS: truncated at 2130 reasoning tokens, zero output
+#   max_tokens=8192  -> ok: 1705 reasoning + 3227 output tokens
+#   max_tokens=16384 -> ok: 3420 reasoning + 1154 output tokens
+# 8192 is the floor below which even a plain short answer risks truncation,
+# since reasoning alone ran past 2048 and past 3400 tokens in these runs
+# before any output began. Callers with larger expected output (e.g. the
+# architect's synthesis/repair calls, which pass their own explicit
+# max_tokens sized for reasoning + a multi-role spec) should not rely on
+# this default; see architect.py's SYNTHESIS_REASONING_RESERVE. See the
+# empty-content+finish_reason="length" check below for the case where even
+# this floor isn't enough -- that raises GatewayReasoningBudgetError so
+# callers can retry with a bigger budget instead of getting silent "".
+DEFAULT_MAX_TOKENS = 8192
 
 _TYPE_MAP: dict[str, Any] = {
     "string": str,
@@ -72,6 +84,15 @@ class GatewayRequestError(GatewayError):
     exhaustion, JSON-schema repair exhaustion, non-retryable 4xx. A different
     provider cannot fix these by being retried, so `complete()` raises them
     immediately without attempting the fallback provider."""
+
+
+class GatewayReasoningBudgetError(GatewayRequestError):
+    """Raised specifically when a reasoning model exhausted max_tokens on
+    chain-of-thought before emitting an answer (finish_reason="length",
+    empty content). Distinct from other GatewayRequestError cases so a
+    caller that can afford it (e.g. the architect's synthesis/repair calls)
+    can catch this one specifically and retry once with a larger budget
+    instead of giving up."""
 
 
 # ---------------------------------------------------------------------------
@@ -249,7 +270,7 @@ async def _complete_with_provider(
         reasoning_out = reasoning
 
         if not text and finish_reason == "length":
-            raise GatewayRequestError(
+            raise GatewayReasoningBudgetError(
                 "reasoning budget exhausted: provider truncated the response "
                 f"(finish_reason=length) before emitting an answer "
                 f"(reasoning_tokens={usage.get('reasoning_tokens', 0)}); "

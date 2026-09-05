@@ -40,6 +40,7 @@ class FakeGateway:
         response_format: Optional[dict[str, Any]] = None,
         max_tokens: Optional[int] = None,
         temperature: Optional[float] = None,
+        reasoning: Optional[Any] = None,
     ) -> FakeCompletion:
         self.calls.append(
             {
@@ -48,6 +49,7 @@ class FakeGateway:
                 "response_format": response_format,
                 "max_tokens": max_tokens,
                 "temperature": temperature,
+                "reasoning": reasoning,
             }
         )
         if not self._responses:
