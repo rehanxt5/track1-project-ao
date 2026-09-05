@@ -16,6 +16,27 @@ def _openai_response(content: str, usage: dict | None = None) -> dict:
     return body
 
 
+def _reasoning_response(
+    *,
+    content: str | None,
+    reasoning: str,
+    finish_reason: str,
+    completion_tokens: int,
+    prompt_tokens: int = 10,
+) -> dict:
+    """Shape of a TensorMux glm-4-7-flash response: chain-of-thought lives in
+    `message.reasoning`, `message.content` is null until the answer starts."""
+    return {
+        "choices": [
+            {
+                "message": {"role": "assistant", "content": content, "reasoning": reasoning},
+                "finish_reason": finish_reason,
+            }
+        ],
+        "usage": {"prompt_tokens": prompt_tokens, "completion_tokens": completion_tokens},
+    }
+
+
 def _json_response(status_code: int, payload: dict) -> httpx.Response:
     return httpx.Response(status_code, json=payload)
 
@@ -280,10 +301,10 @@ async def test_json_repair_validates_required_fields(monkeypatch):
 
 
 async def test_json_repair_exhausted_raises(monkeypatch):
+    # Schema validation failure after the repair loop is a deterministic,
+    # request-shaped error: a fallback provider would fail the same way, so
+    # no fallback call should be made.
     _configure_live_env(monkeypatch)
-    monkeypatch.setenv("FALLBACK_BASE_URL", "https://worker.example.com/v1")
-    monkeypatch.setenv("FALLBACK_API_KEY", "worker-key")
-    monkeypatch.setenv("FALLBACK_MODEL", "worker-model")
     calls = {"count": 0}
 
     def handler(request: httpx.Request) -> httpx.Response:
@@ -292,11 +313,11 @@ async def test_json_repair_exhausted_raises(monkeypatch):
 
     _install_transport(monkeypatch, handler)
 
-    with pytest.raises(GatewayError):
+    with pytest.raises(gateway.GatewayRequestError):
         await complete("worker", MESSAGES, response_format={"schema": SCHEMA})
 
-    # (JSON_REPAIR_RETRIES + 1) attempts against primary, then again against fallback.
-    assert calls["count"] == (gateway.JSON_REPAIR_RETRIES + 1) * 2
+    # (JSON_REPAIR_RETRIES + 1) attempts against primary only, no fallback call.
+    assert calls["count"] == gateway.JSON_REPAIR_RETRIES + 1
 
 
 async def test_json_repair_strips_markdown_code_fence(monkeypatch):
@@ -350,3 +371,170 @@ async def test_replay_without_fixture_raises(monkeypatch, tmp_path):
 
     with pytest.raises(GatewayError, match="no recorded fixture"):
         await complete("worker", MESSAGES)
+
+
+# ---------------------------------------------------------------------------
+# Reasoning models (glm-4-7-flash / TensorMux): content is null while the
+# model is "thinking", chain-of-thought lives in message.reasoning. Fixtures
+# below mirror the four behaviours verified live against the raw API for the
+# prompt "Reply with exactly: OK".
+# ---------------------------------------------------------------------------
+
+# 537 chars, matching the live-verified reasoning length for max_tokens=1024
+# (~134 estimated tokens against 141 completion_tokens, leaving ~7 for "OK").
+REASONING_TEXT = ("Thinking about the request... " * 18)[:537]
+
+
+async def test_truncated_reasoning_raises_instead_of_returning_empty(monkeypatch):
+    # max_tokens=64 live: finish_reason=length, content=null, reasoning cut off
+    # mid-thought. Previously this silently returned "" from complete().
+    _configure_live_env(monkeypatch)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return _json_response(
+            200,
+            _reasoning_response(
+                content=None,
+                reasoning="Thinking about the request but not done ye",
+                finish_reason="length",
+                completion_tokens=64,
+            ),
+        )
+
+    _install_transport(monkeypatch, handler)
+
+    with pytest.raises(GatewayError, match="reasoning budget exhausted"):
+        await complete("worker", MESSAGES, max_tokens=64)
+
+
+async def test_reasoning_completes_exposes_reasoning_and_separates_token_counts(monkeypatch):
+    # max_tokens=1024 live: finish_reason=stop, content="OK", 537 chars
+    # reasoning, 141 completion tokens total.
+    _configure_live_env(monkeypatch)
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        return _json_response(
+            200,
+            _reasoning_response(
+                content="OK",
+                reasoning=REASONING_TEXT,
+                finish_reason="stop",
+                completion_tokens=141,
+            ),
+        )
+
+    _install_transport(monkeypatch, handler)
+
+    result = await complete("worker", MESSAGES, max_tokens=1024)
+
+    assert result.text == "OK"
+    assert result.reasoning == REASONING_TEXT
+    assert "Thinking about the request" not in result.text
+    assert result.reasoning_tokens > 0
+    # completion_tokens (141) split between reasoning and answer, not double-counted.
+    assert result.output_tokens + result.reasoning_tokens == 141
+
+
+async def test_reasoning_effort_none_disables_thinking(monkeypatch):
+    # reasoning_effort="none" live: content="OK", 0 reasoning, 2 completion tokens.
+    _configure_live_env(monkeypatch)
+    seen_payloads = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen_payloads.append(json.loads(request.content))
+        return _json_response(
+            200,
+            _reasoning_response(content="OK", reasoning="", finish_reason="stop", completion_tokens=2),
+        )
+
+    _install_transport(monkeypatch, handler)
+
+    result = await complete("worker", MESSAGES, reasoning=False)
+
+    assert result.text == "OK"
+    assert result.reasoning == ""
+    assert result.reasoning_tokens == 0
+    assert result.output_tokens == 2
+    assert seen_payloads[0]["reasoning_effort"] == "none"
+    assert seen_payloads[0]["chat_template_kwargs"] == {"enable_thinking": False}
+
+
+async def test_reasoning_param_sends_chat_template_kwargs_enable_thinking(monkeypatch):
+    # chat_template_kwargs={"enable_thinking": false} live path: same result as
+    # reasoning_effort="none", 2 completion tokens. Verifies complete() can
+    # toggle the vLLM-style control too, and that an effort string round-trips.
+    _configure_live_env(monkeypatch)
+    seen_payloads = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen_payloads.append(json.loads(request.content))
+        return _json_response(
+            200,
+            _reasoning_response(content="OK", reasoning="short", finish_reason="stop", completion_tokens=10),
+        )
+
+    _install_transport(monkeypatch, handler)
+
+    await complete("worker", MESSAGES, reasoning="low")
+
+    assert seen_payloads[0]["reasoning_effort"] == "low"
+    assert seen_payloads[0]["chat_template_kwargs"] == {"enable_thinking": True}
+
+
+async def test_reasoning_omitted_by_default_sends_no_reasoning_fields(monkeypatch):
+    _configure_live_env(monkeypatch)
+    seen_payloads = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen_payloads.append(json.loads(request.content))
+        return _json_response(200, _openai_response("ok", usage={"prompt_tokens": 1, "completion_tokens": 1}))
+
+    _install_transport(monkeypatch, handler)
+
+    await complete("worker", MESSAGES)
+
+    assert "reasoning_effort" not in seen_payloads[0]
+    assert "chat_template_kwargs" not in seen_payloads[0]
+
+
+async def test_default_max_tokens_floor_applied_when_omitted(monkeypatch):
+    # The old default silently truncated reasoning models by omitting
+    # max_tokens (leaving the provider's own tiny default in effect).
+    _configure_live_env(monkeypatch)
+    seen_payloads = []
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        seen_payloads.append(json.loads(request.content))
+        return _json_response(200, _openai_response("ok", usage={"prompt_tokens": 1, "completion_tokens": 1}))
+
+    _install_transport(monkeypatch, handler)
+
+    await complete("worker", MESSAGES)
+
+    assert seen_payloads[0]["max_tokens"] == gateway.DEFAULT_MAX_TOKENS
+    assert gateway.DEFAULT_MAX_TOKENS >= 1024
+
+
+async def test_truncated_reasoning_does_not_trigger_fallback(monkeypatch):
+    # Reasoning-budget exhaustion is deterministic and request-shaped: a
+    # different provider would fail the same way, so retrying against the
+    # fallback would just double the tokens burned and the latency paid for
+    # a call that's guaranteed to fail identically. Exactly one upstream call
+    # should be made, and it should be to the primary (worker) provider only.
+    _configure_live_env(monkeypatch)
+    calls = {"count": 0}
+
+    def handler(request: httpx.Request) -> httpx.Response:
+        calls["count"] += 1
+        assert request.url.host == "worker.example.com"
+        return _json_response(
+            200,
+            _reasoning_response(content=None, reasoning="cut off", finish_reason="length", completion_tokens=64),
+        )
+
+    _install_transport(monkeypatch, handler)
+
+    with pytest.raises(gateway.GatewayRequestError, match="reasoning budget exhausted"):
+        await complete("worker", MESSAGES)
+
+    assert calls["count"] == 1
