@@ -86,6 +86,30 @@ def _step_get(step: Any, key: str, default: Any = None) -> Any:
     return getattr(step, key, default)
 
 
+def _classify_run_error(error: str) -> tuple[FailureMode, str]:
+    """Sub-classify a run-level `error` string.
+
+    `RunResult.error` is always a plain string by the time it reaches us
+    (the interpreter stringifies every exception), so a gateway
+    `GatewayRequestError` can't be caught with `isinstance` here -- it has
+    to be recognized by the deterministic message text the gateway itself
+    raises for it. `GatewayRequestError` covers request-shaped failures
+    (reasoning-budget exhaustion, JSON-repair exhaustion, non-retryable
+    4xx) that a retry or a different provider cannot fix, as opposed to a
+    transient blip (timeout, 429/5xx) -- so these get their own actionable
+    failure modes instead of the generic runner_error catch-all, and the
+    optimizer has a real mutation path for them.
+    """
+    lowered = error.lower()
+    if "reasoning budget exhausted" in lowered:
+        return FailureMode.REASONING_BUDGET_EXHAUSTED, f"gateway reasoning budget exhausted: {error}"
+    if ("max_steps" in lowered or "budget_tokens" in lowered) and "exceeded" in lowered:
+        return FailureMode.REASONING_BUDGET_EXHAUSTED, f"orchestration budget exhausted: {error}"
+    if "model returned invalid json" in lowered:
+        return FailureMode.MALFORMED_OUTPUT, f"gateway JSON-repair exhausted: {error}"
+    return FailureMode.RUNNER_ERROR, f"run error: {error}"
+
+
 def classify_run(run: Any, *, max_steps: Optional[int] = None) -> Optional[tuple[FailureMode, str]]:
     """Mechanically classify one run. Returns None if the run did not fail.
 
@@ -95,7 +119,7 @@ def classify_run(run: Any, *, max_steps: Optional[int] = None) -> Optional[tuple
     """
     error = getattr(run, "error", None)
     if error:
-        return FailureMode.RUNNER_ERROR, f"run error: {error}"
+        return _classify_run_error(str(error))
 
     for step in getattr(run, "steps", None) or []:
         # A "tool" step's `error` can mean either the tool call raised (a

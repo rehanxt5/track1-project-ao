@@ -132,6 +132,51 @@ def test_classify_run_runner_error_takes_priority_over_score():
     assert "gateway timeout" in evidence
 
 
+def test_classify_run_gateway_reasoning_budget_exhausted_is_not_a_generic_runner_error():
+    # This is the exact message shape metaagent.gateway.GatewayRequestError
+    # raises for a truncated-reasoning response; by the time it reaches
+    # RunResult.error it's just a string (the interpreter stringifies every
+    # exception), so classification has to go by message text. This is a
+    # deterministic, request-shaped failure -- not a transient blip -- and
+    # must be actionable (reasoning_budget_exhausted), not dumped into the
+    # generic runner_error bucket.
+    error = (
+        "role 'solver' failed: llm call failed after retries: reasoning budget "
+        "exhausted: provider truncated the response (finish_reason=length) "
+        "before emitting an answer (reasoning_tokens=4096); raise max_tokens "
+        "or pass reasoning=\"none\"/False for this role"
+    )
+    run = _run(score=None, error=error)
+    mode, evidence = classify_run(run)
+    assert mode is FailureMode.REASONING_BUDGET_EXHAUSTED
+    assert "reasoning budget exhausted" in evidence
+
+
+def test_classify_run_gateway_json_repair_exhausted_is_malformed_output():
+    error = "role 'solver' failed: llm call failed after retries: model returned invalid JSON after 3 attempts: bad"
+    run = _run(score=None, error=error)
+    mode, _ = classify_run(run)
+    assert mode is FailureMode.MALFORMED_OUTPUT
+
+
+def test_classify_run_max_steps_exceeded_is_reasoning_budget_exhausted():
+    run = _run(score=None, error="max_steps (10) exceeded")
+    mode, _ = classify_run(run)
+    assert mode is FailureMode.REASONING_BUDGET_EXHAUSTED
+
+
+def test_classify_run_budget_tokens_exceeded_is_reasoning_budget_exhausted():
+    run = _run(score=None, error="budget_tokens (20000) exceeded (used 20500)")
+    mode, _ = classify_run(run)
+    assert mode is FailureMode.REASONING_BUDGET_EXHAUSTED
+
+
+def test_classify_run_generic_transient_error_stays_runner_error():
+    run = _run(score=None, error="exhausted retries against http://provider: timeout")
+    mode, _ = classify_run(run)
+    assert mode is FailureMode.RUNNER_ERROR
+
+
 def test_classify_run_low_quality_fallback():
     run = _run(score=Score(score=0.6, passed=False, details={}))
     mode, _ = classify_run(run)
